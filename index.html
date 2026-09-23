@@ -370,8 +370,8 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 .dtags{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;margin-top:8px}
 .dtags .jump{margin-top:0}
 /* half-hour tracker */
-.slots{list-style:none;margin:4px 0 0;padding:0}
-.slots li{display:grid;grid-template-columns:68px 28px minmax(0,1fr);gap:0 8px;align-items:center;padding:2px 0}
+.slots{list-style:none;margin:0;padding:0}   /* row height and top margin line up with the 18px dot grid */
+.slots li{display:grid;grid-template-columns:68px 28px minmax(0,1fr);gap:0 8px;align-items:center;height:36px;padding:0}
 .slots li+li{border-top:1px dashed var(--line)}
 .slots li.hr{border-top:1.2px solid var(--line)}
 .slots li.hr .t{color:var(--ink);font-weight:650}
@@ -379,7 +379,7 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 .slots .box{width:24px;height:24px;border-radius:50%;border-width:1.6px}
 .slots .box[aria-pressed="true"]::after{left:7px;top:3px;width:6px;height:11px}
 .slots .sn{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font-family:var(--disp);
-  font-size:.95rem;line-height:1.4;padding:6px 4px;border-radius:0;border-bottom:1px solid transparent}
+  font-size:.95rem;line-height:1.4;padding:3px 4px;border-radius:0;border-bottom:1px solid transparent}
 .slots .sn::placeholder{color:var(--ink2);opacity:.5}
 .slots .sn:focus{outline:none;border-bottom-color:var(--ink);background:var(--wash)}
 .slots li.on .sn{font-weight:600}
@@ -2159,6 +2159,16 @@ function setMeta(ds,obj){
   saveLocal();
 }
 
+/* the page has an 18px dot grid; shift the list so its row lines sit on it */
+function alignSlots(){
+  var ul=document.querySelector(".slots");if(!ul)return;
+  ul.style.paddingTop="0px";
+  var top=ul.getBoundingClientRect().top+window.scrollY;
+  ul.style.paddingTop=((18-(top%18))%18).toFixed(2)+"px";
+}
+addEventListener("resize",function(){clearTimeout(alignSlots._t);alignSlots._t=setTimeout(alignSlots,120)});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(alignSlots);
+
 function renderDay(){
   var el=document.getElementById("dayPanel"),ds=dayDs,t=today();
   if(!el)return;
@@ -2185,6 +2195,7 @@ function renderDay(){
   var r0=rec(ds)||{};
   h+='<p class="group">Notes</p><label for="note" class="sr">Notes for the day</label><textarea id="note" placeholder="Notes, wins, what got in the way\u2026" maxlength="2000">'+esc(r0.note||"")+'</textarea>';
   el.innerHTML=h;
+  alignSlots();
 
   var noteT=null,pending=null;
   function flushNotes(){
