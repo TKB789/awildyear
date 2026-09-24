@@ -384,6 +384,17 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 .slots .sn:focus{outline:none;border-bottom-color:var(--ink);background:var(--wash)}
 .slots li.on .sn{font-weight:600}
 @media (max-width:600px){.slots li{grid-template-columns:62px 26px minmax(0,1fr);gap:0 6px}.slots .box{width:22px;height:22px}}
+/* same day, other years */
+.cmp{list-style:none;margin:14px 0 0;padding:0}
+.cmp li+li{margin-top:8px}
+.cmprow{display:grid;grid-template-columns:minmax(0,1fr) auto 62px;gap:0 10px;align-items:center;width:100%;text-align:left;
+  background:var(--paper);border:1.4px solid var(--ink);border-radius:13px 11px 14px 12px;box-shadow:2px 2px 0 var(--ink);
+  padding:10px 14px;cursor:pointer;font-family:inherit;font-size:1rem}
+.cmprow:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--ink)}
+.cmprow .cmpan{width:62px;height:62px;overflow:visible}
+.cmprow .cl b{display:block;line-height:1.3}
+.cmprow .sb{display:block;font-size:.85rem;color:var(--ink2);line-height:1.35}
+.cmprow .cr{text-align:right;font-family:var(--hand);color:var(--ink2);white-space:nowrap}
 /* animal card */
 .acard{margin:14px 0 4px;padding:10px 14px 12px;border:1.5px solid var(--ink);border-radius:14px 12px 15px 12px;box-shadow:2px 2px 0 var(--ink);background:var(--paper)}
 .acard .ah{display:flex;align-items:baseline;justify-content:space-between;gap:6px 10px;flex-wrap:wrap}
@@ -391,7 +402,7 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 .acard p{margin:6px 0 0;font-size:.95rem;line-height:1.45}
 .acard .where{margin-top:4px;font-size:1rem;color:var(--ink2)}
 .st{font-family:var(--hand);font-size:.95rem;padding:0 9px;border:1.2px solid var(--ink);border-radius:10px;white-space:nowrap;color:#141414}
-.st-cr{background:#F59A8C}.st-en{background:#F9C78A}.st-vu{background:#F6E08A}.st-ex{background:#CFCFC8}
+.st-cr{background:#F59A8C}.st-en{background:#F9C78A}.st-vu{background:#F6E08A}.st-nt{background:#E4E2A8}.st-ex{background:#CFCFC8}
 /* swipe areas */
 .mswipe,.daypanel{touch-action:pan-y pinch-zoom}
 /* phones: garden fits one screen (flower + water) */
@@ -485,6 +496,7 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 
   <section class="view on" id="v-bouquet"></section>
   <section class="view" id="v-plan"></section>
+  <section class="view" id="v-compare"></section>
 
   <section class="view" id="v-tips">
     <div class="spread">
@@ -1340,7 +1352,7 @@ REDESIGN.seal.feats=REDESIGN.seal.feats.filter(function(f){return f.k!=="shape"}
 REDESIGN.seal.parts=[part([38,76],[38,66],[[26,88],[19,91],[24,80]],[[[38,76],[26,88],[19,91],[24,80]],[[38,76],[24,80],[38,66]]])];
 
 REDESIGN.walrus.feats=REDESIGN.walrus.feats.filter(function(f){return f.k!=="shape"});
-REDESIGN.walrus.pts=REDESIGN.walrus.pts.slice(0,19).concat([[16.4,70],[12.4,65]],REDESIGN.walrus.pts.slice(19));
+(function(){var P=REDESIGN.walrus.pts,i=0;for(;i<P.length;i++)if(P[i][0]===18&&P[i][1]===72)break;REDESIGN.walrus.pts=P.slice(0,i+1).concat([[16.4,70],[12.4,65]],P.slice(i+1))})();
 REDESIGN.walrus.parts=[part([16.4,70],[12.4,65],[[16,86],[13,92],[11,84]],[[[16.4,70],[16,86],[13,92],[11,84],[12.4,65]]])];
 
 REDESIGN.beaver={name:"Beaver",
@@ -1459,15 +1471,15 @@ var QHEAD={
   snout:[[0,0],[-3,-7],[-7,-3],[-14,0],[-24,5],[-22,8],[-12,9],[-4,11]],
   panda:[[0,0],[-2,-10],[-6,-6],[-12,-6],[-18,-1],[-20,4],[-16,9],[-9,11],[-3,12]]
 };
-var QTAIL={
-  hang:[[1,5],[3,17],[4,29],[2,37],[6,39],[9,31],[8,17],[5,0]],
-  thick:[[1,6],[5,18],[6,30],[3,40],[9,42],[13,32],[11,16],[5,-1]],
-  long:[[1,4],[10,10],[20,18],[26,28],[23,31],[16,23],[7,17],[3,-1]],
-  up:[[1,2],[8,-4],[12,-14],[11,-26],[17,-28],[19,-16],[15,-4],[6,5]],
-  bushy:[[1,3],[7,12],[9,22],[6,28],[13,27],[15,17],[12,5],[4,-1]],
-  short:[[1,4],[7,8],[9,4],[3,-1]],
-  stub:[[1,4],[5,6],[4,1]],
-  mane:[[1,3],[4,14],[5,26],[3,34],[8,35],[10,24],[8,10],[4,-1]]
+var QTAIL={   /* each tail runs base-bottom -> tip -> base-top, so it never folds over itself */
+  hang:[[2,8],[6,22],[7,34],[5,42],[11,43],[14,31],[12,16],[8,3],[-1,-2]],
+  thick:[[2,9],[7,26],[8,40],[5,50],[13,52],[18,36],[14,18],[9,3],[-1,-2]],
+  bushy:[[2,7],[7,18],[9,28],[6,34],[14,33],[16,20],[12,7],[7,0],[-1,-2]],
+  short:[[2,7],[8,12],[11,8],[8,1],[-1,-2]],
+  stub:[[2,6],[6,7],[6,1],[-1,-2]],
+  long:[[2,10],[13,18],[24,26],[30,36],[34,32],[29,29],[23,19],[12,11],[1,3],[-1,-2]],
+  up:[[6,6],[9,-4],[14,-16],[19,-26],[14,-30],[9,-18],[5,-6],[1,2],[-1,-2]],
+  mane:[[2,7],[5,20],[6,32],[4,40],[10,41],[12,28],[10,14],[7,2],[-1,-2]]
 };
 function Q(o){
   var x0=o.x0||30,B=o.top||40,H=o.h||22,L=o.len||60,hs=o.hs||1.5,by=B+H,w=o.lw||9,t=o.tail?QTAIL[o.tail]:null;
@@ -1551,12 +1563,589 @@ var NEW_ANIMALS={
   komodo_dragon:EXs("Komodo dragon",[[4,40],[8,34],[16,30],[24,32],[34,28],[60,28],[78,32],[108,46],[106,50],[82,44],[72,44],[70,44],[61,44],[50,44],[44,44],[35,44],[30,42],[22,40],[10,42]],1,1.8,[[[70,44],[61,44]],[[44,44],[35,44]]],{len:14,knee:.5}),
 };
 Object.keys(NEW_ANIMALS).forEach(function(k){ANIMALS[k]=NEW_ANIMALS[k]});
+/* the old lion was a face ringed by a mane, which read as a flower once the
+   eyes and nose came off: draw it side-on instead, mane and all */
+ANIMALS.lion=Q({name:"Lion",head:"mane",hs:1.7,len:60,h:22,leg:22,lw:10,tail:"hang",ts:1.1,back:[[.78,-1],[.42,1]]});
+
 /* familiar shapes that now stand for a threatened species */
 ANIMALS.elephant.name="Asian elephant";ANIMALS.rhino.name="Black rhino";ANIMALS.camel.name="Wild Bactrian camel";
 REDESIGN.owl.name="Blakiston's fish owl";REDESIGN.seal.name="Hawaiian monk seal";
 ANIMALS.penguin.name="African penguin";REDESIGN.bee.name="Rusty patched bumble bee";
 ANIMALS.parrot.name="Great green macaw";ANIMALS.frog.name="Golden poison frog";ANIMALS.butterfly.name="Queen Alexandra's birdwing";
 ANIMALS.shark.name="Great white shark";ANIMALS.panda.name="Giant panda";
+
+/* ---------- many more animals ----------
+   Each one reuses a hand-drawn shape from the same family, stretched and nudged
+   so no two months look the same, and carries its own fact. */
+var EXTRA_FACTS={};
+function V(name,base,o){
+  o=o||{};
+  var B=(typeof base==="string")?(ANIMALS[base]||REDESIGN[base]):base;
+  if(!B||!B.pts)return null;
+  var sx=o.sx||1,sy=o.sy||1,j=o.j===undefined?1.4:o.j,r=rng(hashStr(name+base)),i;
+  var cx=0,cy=0;B.pts.forEach(function(p){cx+=p[0];cy+=p[1]});cx/=B.pts.length;cy/=B.pts.length;
+  function sc(p){return [+(cx+(p[0]-cx)*sx).toFixed(2),+(cy+(p[1]-cy)*sy).toFixed(2)]}
+  var map={};
+  var pts=B.pts.map(function(p){
+    var q=sc(p);q=[+(q[0]+(r()-.5)*2*j).toFixed(2),+(q[1]+(r()-.5)*2*j).toFixed(2)];
+    map[p[0]+","+p[1]]=q;return q;
+  });
+  function T(p){var k=p[0]+","+p[1];return map[k]?map[k].slice():sc(p)}
+  var A={name:name,pts:pts,feats:[]};
+  if(B.parts&&!o.nolegs)A.parts=B.parts.map(function(pt){
+    return {a:T(pt.a),b:T(pt.b),path:pt.path.map(T),cells:pt.cells.map(function(c){return c.map(T)})};
+  });
+  if(B.cells)A.cells=B.cells.map(function(c){return c.map(T)});
+  if(o.flip){ // mirror left-right, for a little more variety
+    var mx=0;pts.forEach(function(p){mx=Math.max(mx,p[0])});
+    function F(p){return [+(mx-p[0]).toFixed(2),p[1]]}
+    A.pts=pts.map(F).reverse();
+    if(A.parts)A.parts=A.parts.map(function(pt){return {a:F(pt.b),b:F(pt.a),path:pt.path.map(F).reverse(),cells:pt.cells.map(function(c){return c.map(F).reverse()})}});
+    if(A.cells)A.cells=A.cells.map(function(c){return c.map(F).reverse()});
+  }
+  return A;
+}
+function Vsafe(name,base,o){
+  var A=V(name,base,o);
+  if(A&&!simplePoly(A.pts)){var o2=Object.assign({},o,{j:0});A=V(name,base,o2);}
+  if(A&&!simplePoly(A.pts)){A=V(name,base,{j:0,flip:o&&o.flip});}
+  return A;
+}
+function N(name,base,o,st,fact,where){
+  var k=name.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+  var A=Vsafe(name,base,o);
+  if(!A)return;
+  ANIMALS[k]=A;
+  EXTRA_FACTS[k]=[st||null,fact,where||""];
+}
+/* cats, dogs and other carnivores */
+N("Lynx","amur_leopard",{sx:.92,sy:1.05},"","Tufted ears and huge furry paws that work like snowshoes.","Northern forests");
+N("Bobcat","amur_leopard",{sx:.88,sy:1,flip:1},"","Named for its short, bobbed tail. It can leap about 3 m in one bound.","North America");
+N("Caracal","cheetah",{sx:.9,sy:1.05},"","Long black ear tufts. It can leap 3 m straight up to swat birds from the air.","Africa and West Asia");
+N("Serval","cheetah",{sx:.95,sy:1.1,flip:1},"","The longest legs of any cat for its size, used to pounce over tall grass.","African grasslands");
+N("Ocelot","amur_leopard",{sx:.8,sy:.9},"","A small spotted cat that hunts at night and rests in trees by day.","Central and South America");
+N("Jaguar","sumatran_tiger",{sx:1.02,sy:1.05},"NT","It has the strongest bite of any big cat and can crack turtle shells.","Central and South America");
+N("Leopard","amur_leopard",{sx:1,sy:1,flip:1},"VU","It hauls prey heavier than itself up into trees to keep it from lions.","Africa and Asia");
+N("Clouded leopard","snow_leopard",{sx:.9,sy:.95},"VU","It has the longest canine teeth for its size of any cat, and climbs down trees head-first.","Southeast Asia");
+N("Puma","cheetah",{sx:1.05,sy:1.05},"","Also called cougar, panther and mountain lion — it holds the record for the most English names of any animal.","The Americas");
+N("Tiger","sumatran_tiger",{sx:1.05,sy:1.02,flip:1},"EN","Every tiger's stripe pattern is unique, and the stripes are on the skin too.","Asia");
+N("Fishing cat","amur_leopard",{sx:.78,sy:.9},"VU","A cat that dives for fish and has partly webbed toes.","South and Southeast Asia");
+N("Sand cat","cat",{sx:1.05,sy:.95},"","Fur-covered paw pads let it walk on burning desert sand without sinking.","Deserts of Africa and Asia");
+N("Arctic fox","fox",{sx:.95,sy:1.02},"","Its coat turns white in winter and brown in summer.","Arctic tundra");
+N("Fennec fox","fox",{sx:.85,sy:.88,flip:1},"","The smallest fox, with huge ears that shed heat and hear prey underground.","Sahara Desert");
+N("Gray wolf","red_wolf",{sx:1.05,sy:1.05},"","A howl can carry over 10 km. Packs are usually just one family.","Northern Hemisphere");
+N("Coyote","ethiopian_wolf",{sx:1,sy:1,flip:1},"","It has spread across cities and suburbs as other predators disappeared.","North and Central America");
+N("Dingo","red_wolf",{sx:.98,sy:.98,flip:1},"","Australia's wild dog, able to turn its head almost 180 degrees.","Australia");
+N("Maned wolf","ethiopian_wolf",{sx:1,sy:1.2},"NT","Long stilt-like legs for seeing over tall grass. It's not a wolf or a fox.","South America");
+N("Bush dog","red_wolf",{sx:.75,sy:.8},"NT","A stubby, webbed-footed dog that hunts in packs in rainforest swamps.","South America");
+N("Raccoon dog","raccoon",{sx:1.05,sy:1.05},"","The only dog that hibernates through winter.","East Asia and Europe");
+N("Fossa","amur_leopard",{sx:.85,sy:.85},"VU","Madagascar's top predator, with ankles that rotate so it can run down trees head-first.","Madagascar");
+N("Meerkat","numbat",{sx:.9,sy:1.1},"","One meerkat always stands guard on its hind legs while the others forage.","Southern Africa");
+N("Honey badger","beaver",{sx:1,sy:.95},"","Famously fearless, with loose skin that lets it twist around while being held.","Africa and South Asia");
+N("Wolverine","beaver",{sx:1.05,sy:1,flip:1},"","A big weasel strong enough to drag a carcass several times its weight through snow.","Northern forests");
+N("Badger","beaver",{sx:1.08,sy:.9,flip:1},"","It digs huge tunnel systems, called setts, used by families for generations.","Europe and Asia");
+N("Otter","sea_otter",{sx:.9,sy:.95},"","River otters have a favorite rock they carry for cracking shells.","Rivers worldwide");
+N("Stoat","numbat",{sx:.85,sy:.8},"","Its brown coat turns white in winter, when it's called ermine.","Northern Hemisphere");
+N("Skunk","raccoon",{sx:.95,sy:.9,flip:1},"","It can spray its scent accurately up to about 3 m, but stamps a warning first.","The Americas");
+N("Red fox","fox",{sx:1.02,sy:1},"","It can hear a mouse squeak from about 100 m away.","Northern Hemisphere");
+N("Grizzly bear","polar_bear",{sx:1,sy:1.05},"","Its shoulder hump is pure muscle for digging. It can smell food kilometres away.","North America");
+N("Black bear","bear",{sx:.95,sy:.95,flip:1},"","A strong climber that can sprint at 50 km/h despite its size.","North America");
+N("Sun bear","bear",{sx:.8,sy:.8},"VU","The smallest bear, with a tongue up to 25 cm long for reaching honey.","Southeast Asia");
+N("Sloth bear","bear",{sx:.95,sy:1,flip:1},"VU","It sucks termites out of mounds with a noise you can hear far away.","India and Sri Lanka");
+N("Spectacled bear","bear",{sx:.92,sy:.95},"VU","South America's only bear, named for the pale rings around its eyes.","Andes Mountains");
+N("Giant otter","sea_otter",{sx:1.15,sy:1},"EN","Up to 1.7 m long and very loud — families use at least nine different calls.","Amazon rivers");
+N("Hyena","african_wild_dog",{sx:1.05,sy:1.05},"","Spotted hyena clans are led by females, and their jaws can crush bone.","Africa");
+N("Aardwolf","african_wild_dog",{sx:.85,sy:.9,flip:1},"","A shy relative of the hyena that eats termites, up to 300,000 in a night.","Southern and East Africa");
+N("Civet","numbat",{sx:1.05,sy:1.05,flip:1},"","A night-hunting tree dweller with a musky scent once used in perfume.","Africa and Asia");
+N("Mongoose","numbat",{sx:1,sy:.95},"","Quick enough to dodge a striking cobra, and partly resistant to its venom.","Africa and Asia");
+N("Binturong","red_panda",{sx:1.1,sy:1},"VU","Also called the bearcat; it smells like buttered popcorn and has a gripping tail.","Southeast Asia");
+N("Weasel","numbat",{sx:.8,sy:.75,flip:1},"","It can hunt in tunnels narrower than a golf ball.","Northern Hemisphere");
+N("Marten","red_panda",{sx:.9,sy:.9},"","A tree-running hunter fast enough to catch squirrels in the branches.","Northern forests");
+N("Mink","numbat",{sx:.95,sy:.85},"","A semi-aquatic hunter with waterproof fur and partly webbed feet.","North America and Europe");
+N("Ferret","numbat",{sx:.9,sy:.82,flip:1},"","Domesticated over 2,000 years ago, and it sleeps up to 18 hours a day.","Worldwide, with people");
+N("Wild boar","pig",{sx:1,sy:1},"","It uses its tough snout to plough up soil, and swims well between islands.","Europe, Asia and North Africa");
+N("Warthog","pig",{sx:1.05,sy:.95,flip:1},"","It kneels on padded wrists to graze and reverses into burrows to sleep.","Africa");
+N("Babirusa","pig",{sx:.95,sy:1.05},"VU","Males grow tusks that curve up through the snout and back toward the forehead.","Indonesia");
+N("Tasmanian quoll","tasmanian_devil",{sx:.85,sy:.9},"","A spotted marsupial hunter, about the size of a cat.","Australia and New Guinea");
+N("Genet","numbat",{sx:1.05,sy:.9},"","A slender, spotted climber with a ringed tail longer than its body.","Africa and Europe");
+N("Coati","raccoon",{sx:1,sy:1,flip:1},"","Females and young travel in noisy bands; adult males live alone.","The Americas");
+/* hoofed animals */
+N("Moose","deer",{sx:1.1,sy:1.1},"","The largest deer. Its antlers can span nearly 2 m and are shed every winter.","Northern forests");
+N("Elk","deer",{sx:1.05,sy:1.05,flip:1},"","Bulls bugle in autumn, a call that can carry for kilometres.","North America and East Asia");
+N("Reindeer","deer",{sx:1,sy:1},"VU","The only deer where both sexes grow antlers, and its hooves click as it walks.","Arctic tundra");
+N("Roe deer","deer",{sx:.8,sy:.85,flip:1},"","It can delay its pregnancy for months so fawns are born in spring.","Europe and Asia");
+N("Sika deer","deer",{sx:.85,sy:.9},"","Keeps its white spots for life, unlike most deer.","East Asia");
+N("Muntjac","deer",{sx:.7,sy:.75,flip:1},"","Called the barking deer for the dog-like alarm call it can keep up for an hour.","South and Southeast Asia");
+N("Pudu","deer",{sx:.6,sy:.65},"NT","The world's smallest deer, about the size of a small dog.","Andes of South America");
+N("Caribou","deer",{sx:1.05,sy:1,flip:1},"VU","Some herds migrate over 4,000 km a year, farther than any other land mammal.","Arctic North America");
+N("Impala","deer",{sx:.95,sy:1},"","It can leap 3 m high and 10 m forward in a single bound.","East and southern Africa");
+N("Gazelle","deer",{sx:.9,sy:.95,flip:1},"","It bounces stiff-legged, called pronking, to show predators it's fit to chase.","Africa and Asia");
+N("Springbok","deer",{sx:.88,sy:.95},"","Its back flap of white fur opens like a fan when it pronks.","Southern Africa");
+N("Oryx","saola",{sx:1.05,sy:1.05},"","Long straight horns and a body that can survive for weeks without drinking.","Deserts of Africa and Arabia");
+N("Addax","saola",{sx:.95,sy:1,flip:1},"CR","A desert antelope with spiral horns, down to fewer than 100 in the wild.","Sahara Desert");
+N("Kudu","saola",{sx:1.1,sy:1.1},"","Males grow long corkscrew horns and can clear a 2 m fence from standing.","Eastern and southern Africa");
+N("Eland","cow",{sx:1,sy:1,flip:1},"","The largest antelope, yet it can still jump a fence from a standstill.","Africa");
+N("Wildebeest","cow",{sx:1,sy:1.02},"","Over a million migrate across the Serengeti each year, following the rain.","East Africa");
+N("Bison","cow",{sx:1.08,sy:1.1},"NT","Once numbered in the tens of millions in North America; brought back from about 500 animals.","North America");
+N("Yak","cow",{sx:1.05,sy:1.05,flip:1},"VU","Its lungs and blood carry extra oxygen for life above 4,000 m.","Himalayas and Tibetan Plateau");
+N("Water buffalo","cow",{sx:1.05,sy:1},"","It wallows in mud to stay cool, since it has few sweat glands.","Asia");
+N("Musk ox","cow",{sx:1,sy:1.08},"","Herds form a circle with horns out when wolves come near.","Arctic tundra");
+N("Bighorn sheep","goat",{sx:1.05,sy:1.05},"","Rams charge head-on at 30 km/h; their skulls and horns absorb the blow.","Rocky Mountains");
+N("Ibex","goat",{sx:1,sy:1.05,flip:1},"","It climbs near-vertical dam walls to lick salt, gripping with split hooves.","Mountains of Europe and Asia");
+N("Markhor","goat",{sx:1,sy:1.08},"NT","Pakistan's national animal, with horns that twist like a corkscrew.","Mountains of Central Asia");
+N("Chamois","goat",{sx:.9,sy:.95,flip:1},"","It can run 50 km/h over rocky slopes and jump 2 m up.","Mountains of Europe");
+N("Takin","cow",{sx:.95,sy:1,flip:1},"VU","A goat-antelope with an oily coat that sheds mountain rain.","Eastern Himalayas");
+N("Mouflon","goat",{sx:.95,sy:.95},"","The wild sheep that all domestic sheep descend from.","Europe and West Asia");
+N("Pronghorn","deer",{sx:.95,sy:1},"","The fastest land animal in the Americas, and it can hold 70 km/h for kilometres.","Western North America");
+N("Giraffe gazelle","llama",{sx:.9,sy:1.05},"NT","The gerenuk stands on its hind legs to browse leaves other antelope can't reach.","East Africa");
+N("Vicuña","llama",{sx:.95,sy:.95,flip:1},"","Its wool is the finest of any animal; it was once reserved for Inca royalty.","Andes Mountains");
+N("Guanaco","llama",{sx:1.05,sy:1},"","The wild ancestor of the llama, able to run at 55 km/h at high altitude.","South America");
+N("Alpaca","llama",{sx:.95,sy:1,flip:1},"","Bred for fleece for over 6,000 years, and it hums when curious or worried.","Andes Mountains");
+N("Dromedary camel","camel",{sx:1,sy:1},"","One hump, storing fat, not water. It can drink 100 litres in ten minutes.","North Africa and the Middle East");
+N("Zebra","grevys_zebra",{sx:1,sy:1,flip:1},"NT","Plains zebras stand in pairs head-to-tail, watching for danger in both directions.","Africa");
+N("Mountain zebra","grevys_zebra",{sx:.95,sy:1},"VU","It digs for underground water with its hooves, making drinking holes other animals use.","Southwest Africa");
+N("Donkey","przewalskis_horse",{sx:.9,sy:.95},"","Its big ears help it hear other donkeys up to 60 km away in the desert.","Worldwide, with people");
+N("Onager","przewalskis_horse",{sx:.95,sy:.98,flip:1},"NT","A wild ass of the Asian deserts, one of the fastest members of the horse family.","Iran and Central Asia");
+N("Tapir","pygmy_hippo",{sx:1.05,sy:1},"EN","It has a short trunk for grabbing leaves, and babies are born striped and spotted.","Latin America and Southeast Asia");
+N("White rhino","rhino",{sx:1.05,sy:1.02,flip:1},"NT","Its wide, square lip works like a lawnmower for grazing short grass.","Southern Africa");
+N("Indian rhino","rhino",{sx:1,sy:1.05},"VU","Its folded skin looks like armour plating, and it is a strong swimmer.","India and Nepal");
+N("Warty pig","pig",{sx:.95,sy:.95},"EN","Males grow three pairs of facial warts and a punk-like crest of hair.","Philippines");
+N("Peccary","pig",{sx:.85,sy:.9,flip:1},"","It has a scent gland on its back and rubs it on herd-mates to share a group smell.","The Americas");
+N("Hippopotamus","hippo",{sx:1,sy:1},"VU","It can hold its breath for five minutes and sleeps underwater, surfacing without waking.","Sub-Saharan Africa");
+N("African elephant","elephant",{sx:1.05,sy:1.05,flip:1},"EN","The largest land animal. Its ears are shaped like Africa and work as radiators.","Africa");
+N("Forest elephant","elephant",{sx:.9,sy:.95},"CR","A smaller, straighter-tusked elephant that plants the rainforest by spreading seeds.","Central African forests");
+N("Nilgai","cow",{sx:.95,sy:1},"","The largest antelope in Asia; males turn blue-grey with age.","India");
+N("Sable antelope","saola",{sx:1.05,sy:1.05,flip:1},"","Males drop to their knees to duel with sweeping, ridged horns.","Southern Africa");
+N("Dik-dik","deer",{sx:.62,sy:.62},"","A tiny antelope that whistles through its nose when alarmed, and mates for life.","East Africa");
+N("Klipspringer","goat",{sx:.75,sy:.8},"","It walks on the very tips of its hooves, like a ballet dancer on rock.","African mountains");
+N("Bongo","saola",{sx:1,sy:1.05},"NT","A striped forest antelope that tips its head back so its horns slide along its spine.","Central African forests");
+N("Saiga","goat",{sx:.95,sy:1,flip:1},"NT","Its bulbous nose warms freezing air and filters out summer dust.","Central Asian steppe");
+/* small mammals, primates and marsupials */
+N("Squirrel monkey","golden_lion_tamarin",{sx:1,sy:1},"","Troops can number hundreds, and they use over 25 different calls.","Central and South America");
+N("Capuchin monkey","golden_lion_tamarin",{sx:1.1,sy:1.05,flip:1},"","It cracks nuts with stones and rubs itself with crushed millipedes to repel insects.","Latin America");
+N("Howler monkey","proboscis_monkey",{sx:1,sy:1},"","The loudest land animal in the Americas; its calls carry 5 km through forest.","Latin America");
+N("Spider monkey","proboscis_monkey",{sx:1.05,sy:1.05,flip:1},"EN","Its tail works as a fifth limb, strong enough to hang from and with a gripping tip.","Latin America");
+N("Mandrill","mountain_gorilla",{sx:.85,sy:.9},"VU","The most colorful mammal, with a red and blue face that brightens when excited.","Central African forests");
+N("Baboon","chimpanzee",{sx:.95,sy:.95,flip:1},"","Troops of up to 250, with a strict pecking order and over 30 sounds.","Africa and Arabia");
+N("Macaque","chimpanzee",{sx:.8,sy:.85},"","Japanese macaques bathe in hot springs to sit out the winter.","Asia and North Africa");
+N("Vervet monkey","golden_lion_tamarin",{sx:1.05,sy:1,flip:1},"","It has different alarm calls for eagles, snakes and leopards.","Africa");
+N("Colobus monkey","proboscis_monkey",{sx:.95,sy:1},"","It has no thumbs, which helps it swing through branches, and a stomach like a cow's.","African forests");
+N("Langur","proboscis_monkey",{sx:.95,sy:.98,flip:1},"","Females in a troop share the care of each other's infants.","South and Southeast Asia");
+N("Tarsier","aye_aye",{sx:.6,sy:.65},"","Each eye is as big as its brain, and it can turn its head almost all the way around.","Southeast Asian islands");
+N("Slow loris","aye_aye",{sx:.8,sy:.85,flip:1},"EN","The only venomous primate: it mixes arm gland oil with saliva.","South and Southeast Asia");
+N("Sifaka","ring_tailed_lemur",{sx:1,sy:1.05},"CR","It crosses open ground by bounding sideways on two legs, arms in the air.","Madagascar");
+N("Mouse lemur","aye_aye",{sx:.62,sy:.7,j:.8},"","The smallest primate, light enough to sit in a spoon.","Madagascar");
+N("Indri","mountain_gorilla",{sx:.7,sy:.8,flip:1},"CR","The largest lemur, and families sing wailing duets that carry 2 km.","Madagascar");
+N("Marmoset","golden_lion_tamarin",{sx:.7,sy:.75},"","It gnaws holes in bark to drink tree gum, and usually gives birth to twins.","South America");
+N("Siamang","hainan_gibbon",{sx:1.1,sy:1.05},"EN","It inflates a throat sac the size of its head to boom across the forest.","Sumatra and Malaysia");
+N("Gibbon","hainan_gibbon",{sx:1,sy:1,flip:1},"EN","It swings hand over hand at up to 55 km/h, covering 3 m a swing.","Southeast Asia");
+N("Western gorilla","mountain_gorilla",{sx:1.05,sy:1.02},"CR","Silverback males weigh up to 200 kg, and gorillas build a new nest each night.","Central Africa");
+N("Sumatran orangutan","orangutan",{sx:.95,sy:1,flip:1},"CR","Males grow wide cheek pads, and mothers care for young for about eight years.","Sumatra");
+N("Three-toed sloth","pygmy_sloth",{sx:1.1,sy:1.05},"","It moves so slowly that algae grows in its fur, giving it a green camouflage.","Central and South America");
+N("Two-toed sloth","pygmy_sloth",{sx:1.15,sy:1.1,flip:1},"","It sleeps around 15 hours a day and climbs down to the ground only once a week.","Latin America");
+N("Giant anteater","numbat",{sx:1.5,sy:1.3},"VU","No teeth at all: a 60 cm sticky tongue flicks 150 times a minute.","Central and South America");
+N("Armadillo","pangolin",{sx:.9,sy:.9},"","Its bony plates are true armour, and it can cross streams by walking on the bottom.","The Americas");
+N("Aardvark","pangolin",{sx:1.05,sy:1,flip:1},"","It digs a burrow faster than several people with shovels.","Sub-Saharan Africa");
+N("Echidna","hedgehog",{sx:1,sy:1},"","One of only two mammals that lay eggs, and it has no teeth.","Australia and New Guinea");
+N("Platypus","beaver",{sx:1,sy:.9,flip:1},"NT","It lays eggs, has a duck-like bill that senses electricity, and males have venomous spurs.","Eastern Australia");
+N("Wombat","koala",{sx:1,sy:.85},"","It produces cube-shaped droppings, which stay put as territory markers.","Australia");
+N("Quokka","kangaroo",{sx:.65,sy:.7},"VU","Its face looks permanently cheerful, and it can climb small trees.","Southwest Australia");
+N("Wallaby","kangaroo",{sx:.8,sy:.85,flip:1},"","A smaller relative of the kangaroo that thumps its feet to warn of danger.","Australia and New Guinea");
+N("Tree kangaroo","kangaroo",{sx:.85,sy:.9},"EN","A kangaroo that lives in trees and can leap 9 m down to the ground unhurt.","New Guinea and Australia");
+N("Bilby","numbat",{sx:.95,sy:1.05,flip:1},"VU","It digs spiralling burrows and has rabbit-like ears that never stop growing.","Australian deserts");
+N("Sugar glider","numbat",{sx:.7,sy:.8},"","It glides over 50 m between trees on a skin flap from wrist to ankle.","Australia and New Guinea");
+N("Opossum","numbat",{sx:1.05,sy:1,flip:1},"","When cornered it plays dead, complete with a foul smell, and can't control it.","The Americas");
+N("Capybara","pygmy_hippo",{sx:.9,sy:.9},"","The world's largest rodent, and it can nap underwater with only its nose out.","South America");
+N("Eurasian beaver","beaver",{sx:1.05,sy:1.05,flip:1},"","Its dams create wetlands that dozens of other species depend on.","North America and Europe");
+N("Porcupine","hedgehog",{sx:1.1,sy:1.05},"","Its quills are loosely attached and barbed, but it can't shoot them.","The Americas, Africa, Asia");
+N("Long-eared hedgehog","hedgehog",{sx:1,sy:1,flip:1},"","It rolls into a ball with about 5,000 spines out, and hibernates through winter.","Europe, Asia, Africa");
+N("Chipmunk","squirrel",{sx:.8,sy:.85},"","Its cheek pouches can stretch to three times the size of its head.","North America and Asia");
+N("Prairie dog","squirrel",{sx:.85,sy:.8,flip:1},"","Its calls describe a predator's size, shape and color — a bit like words.","North American prairies");
+N("Marmot","squirrel",{sx:1,sy:.95},"","It hibernates for up to eight months, its heartbeat dropping to a few beats a minute.","Mountains of the Northern Hemisphere");
+N("Flying squirrel","squirrel",{sx:.9,sy:.9,flip:1},"","It glides up to 90 m and steers with its flattened tail.","Northern forests and Asia");
+N("Chinchilla","mouse",{sx:1,sy:1},"EN","Its fur is so dense that fleas can't live in it, and it bathes in volcanic dust.","Andes Mountains");
+N("Guinea pig","mouse",{sx:1.05,sy:.95,flip:1},"","It can't make its own vitamin C, so it needs fresh greens like we do.","Andes Mountains");
+N("Naked mole rat","mouse",{sx:.9,sy:.8},"","It lives in a colony with a queen, feels almost no pain and rarely gets cancer.","East Africa");
+N("Pika","mouse",{sx:.85,sy:.9,flip:1},"","It dries stacks of hay in the sun to store food for winter under the rocks.","Mountains of Asia and North America");
+N("Hamster","mouse",{sx:.95,sy:.9},"","It can stuff half its body weight of seeds into its cheek pouches.","Europe and Asia");
+N("Jerboa","mouse",{sx:.9,sy:1.05,flip:1},"","A desert rodent that hops on long hind legs and rarely drinks water.","Deserts of Africa and Asia");
+N("Rat","mouse",{sx:1.1,sy:1},"","Rats laugh at a pitch we can't hear when tickled, and they help each other.","Worldwide");
+N("Hare","rabbit",{sx:1.05,sy:1.05},"","Born with fur and open eyes, and it can run 70 km/h in zigzags.","Worldwide");
+/* marine mammals, bats and the rest of the mammals */
+N("Humpback whale","blue_whale",{sx:.92,sy:1.15},"","Males sing songs that last 20 minutes and change a little every year.","All oceans");
+N("Sperm whale","blue_whale",{sx:.95,sy:1.2,flip:1},"VU","The largest toothed animal, and it dives 2 km down to hunt squid in the dark.","All oceans");
+N("Orca","vaquita",{sx:1.2,sy:1.2},"","Pods have their own dialects, and some hunt by washing seals off ice floes.","All oceans");
+N("Beluga","vaquita",{sx:1.1,sy:1.15,flip:1},"","Nicknamed the sea canary for its chirps, and it can turn its head side to side.","Arctic waters");
+N("Narwhal","blue_whale",{sx:.8,sy:1.05},"","Its 'tusk' is a spiralled tooth up to 3 m long, packed with nerve endings.","Arctic waters");
+N("Bowhead whale","right_whale",{sx:1,sy:1.05},"","It may live over 200 years, longer than any other mammal.","Arctic waters");
+N("Gray whale","blue_whale",{sx:.95,sy:1.1,flip:1},"","It migrates up to 20,000 km a year between feeding and calving grounds.","North Pacific");
+N("Fin whale","blue_whale",{sx:1,sy:1.05},"VU","The second largest animal, nicknamed the greyhound of the sea for its speed.","All oceans");
+N("Minke whale","blue_whale",{sx:.85,sy:1.1},"","The smallest baleen whale in its group, and a curious one that approaches boats.","All oceans");
+N("Bottlenose dolphin","dolphin",{sx:1.05,sy:1},"","It sleeps with one half of its brain at a time, keeping one eye open.","Warm oceans worldwide");
+N("Spinner dolphin","dolphin",{sx:.95,sy:.95,flip:1},"","It leaps and spins up to seven times in the air in one jump.","Tropical oceans");
+N("Amazon river dolphin","dolphin",{sx:1,sy:1.05},"EN","A pink freshwater dolphin with a flexible neck for weaving through flooded forest.","Amazon and Orinoco rivers");
+N("Harbour porpoise","vaquita",{sx:1.05,sy:1.1,flip:1},"","It must eat almost constantly; it can't store much fat for lean days.","Cool coastal waters");
+N("Harp seal","seal",{sx:1.05,sy:1},"","Pups are born on the ice with white coats that they shed within weeks.","North Atlantic and Arctic");
+N("Leopard seal","seal",{sx:1.15,sy:1,flip:1},"","A big-jawed Antarctic hunter that sings underwater for hours during breeding season.","Antarctic waters");
+N("Elephant seal","seal",{sx:1.2,sy:1.1},"","Males grow a trunk-like nose, and they dive 1,500 m for up to two hours.","Pacific and Southern Oceans");
+N("Weddell seal","seal",{sx:1.1,sy:1.05,flip:1},"","It keeps breathing holes open in the ice by rasping at them with its teeth.","Antarctica");
+N("Fur seal","seal",{sx:.95,sy:1},"","It has the second densest fur of any animal, up to 300,000 hairs per square inch.","Southern and Pacific Oceans");
+N("Sea lion","seal",{sx:1.1,sy:1.02},"","It can turn its back flippers forward and walk on all fours, unlike true seals.","Pacific coasts");
+N("Ringed seal","seal",{sx:.9,sy:.95,flip:1},"","The smallest Arctic seal, digging snow caves above its breathing holes for pups.","Arctic waters");
+N("Manatee","dugong",{sx:1.05,sy:1.1},"VU","A gentle grazer that eats a tenth of its weight in plants daily, and has no natural enemies.","Atlantic coasts and rivers");
+N("Steller sea lion","seal",{sx:1.2,sy:1.08},"NT","The largest sea lion; males weigh as much as a small car.","North Pacific");
+N("Fruit bat","bat",{sx:1.1,sy:1.05},"","Flying foxes have wingspans over 1.5 m and spread seeds across whole forests.","Africa, Asia, Australia");
+N("Vampire bat","bat",{sx:.85,sy:.85,flip:1},"","It shares meals with hungry roost-mates, and remembers who shared with it.","Latin America");
+N("Horseshoe bat","bat",{sx:.8,sy:.85},"","Its leaf-shaped nose focuses the calls it uses to see in the dark.","Europe, Africa, Asia");
+N("Bumblebee bat","bat",{sx:.6,sy:.62,flip:1},"NT","One of the smallest mammals on Earth, weighing about as much as a paperclip.","Thailand and Myanmar");
+N("Mole","mouse",{sx:1,sy:.85},"","It can dig 20 m of tunnel in a day and has extra blood protein for low-oxygen air.","Europe, Asia, North America");
+N("Shrew","mouse",{sx:.7,sy:.7,flip:1},"","Its heart beats up to 1,000 times a minute, so it must eat almost every hour.","Worldwide");
+N("Tenrec","hedgehog",{sx:.8,sy:.85},"","Some rub their quills together to make chirps that keep the family together.","Madagascar");
+N("Colugo","numbat",{sx:.95,sy:1,flip:1},"","It glides over 100 m on the largest gliding membrane of any mammal.","Southeast Asia");
+N("Hyrax","koala",{sx:.7,sy:.7},"","A rabbit-sized animal whose closest living relatives are elephants.","Africa and the Middle East");
+N("Sea otter pup","sea_otter",{sx:.85,sy:.9,flip:1},"EN","Pups float like corks; their fur traps so much air they can't sink.","North Pacific coasts");
+N("Muskrat","beaver",{sx:.8,sy:.85},"","It can stay underwater for 15 minutes and builds lodges out of reeds.","North America and Eurasia");
+N("Nutria","beaver",{sx:.9,sy:.9,flip:1},"","A river rodent with orange teeth and nipples on its sides so young can feed while it swims.","South America");
+N("Kinkajou","red_panda",{sx:.95,sy:.95},"","It has a 12 cm tongue for raiding flowers and a tail that grips like a hand.","Latin American rainforests");
+N("Olinguito","red_panda",{sx:.8,sy:.85,flip:1},"NT","Only described as a new species in 2013, though museums had specimens for a century.","Andean cloud forests");
+N("Tamandua","numbat",{sx:1.15,sy:1.1},"","A tree anteater that grips branches with its tail and smells strongly of skunk.","Latin America");
+N("Pangolin (ground)","pangolin",{sx:1.05,sy:1.05,flip:1},"EN","The giant pangolin can be 1.8 m long and walks on its hind legs to spare its claws.","Central Africa");
+N("Bush baby","aye_aye",{sx:.8,sy:.85},"","It can leap over 2 m between branches in the dark and folds its ears shut while sleeping.","Sub-Saharan Africa");
+N("Fossa kitten","fossa",{sx:.8,sy:.85,flip:1},"VU","Young fossas stay with their mother for over a year while learning to climb.","Madagascar");
+N("Spotted skunk","raccoon",{sx:.8,sy:.85},"","It does a handstand on its front paws before spraying.","North and Central America");
+N("Ribbon seal","seal",{sx:.95,sy:.95,flip:1},"","Adults are banded in wide white ribbons — no two patterns are quite the same.","North Pacific ice");
+N("Walrus calf","walrus",{sx:.85,sy:.9},"VU","Calves ride on their mothers' backs and nurse for up to two years.","The Arctic");
+N("Dhole","african_wild_dog",{sx:.9,sy:.95},"EN","An Asian wild dog that whistles to keep the pack together in thick forest.","South and Southeast Asia");
+N("Arctic hare","rabbit",{sx:1,sy:1.05,flip:1},"","It huddles in groups of dozens in winter and can run 60 km/h over snow.","Arctic tundra");
+N("Snowshoe hare","rabbit",{sx:.95,sy:1},"","Its huge hind feet spread its weight on snow, and its coat turns white in winter.","North America");
+N("Pygmy marmoset","golden_lion_tamarin",{sx:.6,sy:.62},"VU","The smallest monkey, small enough to sit in your palm, feeding on tree sap.","Amazon rainforest");
+N("Kiang","przewalskis_horse",{sx:1.05,sy:1},"","The largest wild ass, living higher than almost any other large mammal.","Tibetan Plateau");
+N("Banteng","cow",{sx:1,sy:1,flip:1},"EN","A wild cattle species with a white rump patch and white 'socks'.","Southeast Asia");
+N("Gaur","cow",{sx:1.1,sy:1.1},"VU","The largest wild cattle, with a tall muscular ridge along its back.","South and Southeast Asia");
+/* birds */
+N("Bald eagle","philippine_eagle",{sx:1,sy:1},"","It builds the largest tree nest of any bird — some weigh over a tonne.","North America");
+N("Golden eagle","philippine_eagle",{sx:.95,sy:1,flip:1},"","It dives at over 240 km/h and can spot a rabbit from 3 km away.","Northern Hemisphere");
+N("Harpy eagle","philippine_eagle",{sx:1.05,sy:1.05},"VU","Its talons are as long as a bear's claws, and it plucks monkeys from the canopy.","Latin American rainforests");
+N("Peregrine falcon","california_condor",{sx:.75,sy:.8},"","The fastest animal alive: over 380 km/h in a hunting dive.","Everywhere but Antarctica");
+N("Kestrel","california_condor",{sx:.65,sy:.7,flip:1},"","It hovers on the spot and can see the ultraviolet trails left by vole urine.","Europe, Asia, Africa");
+N("Osprey","california_condor",{sx:.85,sy:.9},"","It has a reversible outer toe and closes its nostrils to dive feet-first for fish.","Worldwide");
+N("Andean condor","california_condor",{sx:1.05,sy:1.05,flip:1},"VU","A 3 m wingspan lets it soar for hours over the Andes without a single flap.","Andes Mountains");
+N("Griffon vulture","california_condor",{sx:.95,sy:1},"","It has been recorded flying at 11,000 m, as high as a jet airliner.","Europe, Africa, Asia");
+N("Secretary bird","whooping_crane",{sx:1,sy:1},"EN","It stamps snakes to death with kicks five times its own body weight.","African grasslands");
+N("Barn owl","owl",{sx:1,sy:1},"","Its heart-shaped face funnels sound so precisely it can hunt in total darkness.","Every continent but Antarctica");
+N("Snowy owl","owl",{sx:1.05,sy:1.05,flip:1},"VU","It hunts by day in the Arctic summer and can eat over 1,600 lemmings a year.","Arctic tundra");
+N("Great horned owl","owl",{sx:1.02,sy:1},"","Its grip is so strong it takes 13 kg of force to open a foot.","The Americas");
+N("Burrowing owl","owl",{sx:.8,sy:.85,flip:1},"","It nests underground and lines its burrow with dung to attract beetles to eat.","The Americas");
+N("Elf owl","owl",{sx:.62,sy:.65},"","The world's smallest owl, nesting in holes woodpeckers left in cacti.","Southwest US and Mexico");
+N("Kookaburra","helmeted_hornbill",{sx:.85,sy:.9},"","Its laughing call is a family chorus marking territory at dawn and dusk.","Australia and New Guinea");
+N("Toucan","helmeted_hornbill",{sx:.9,sy:.95,flip:1},"","Its huge bill is mostly air inside and works as a radiator to shed heat.","Latin American rainforests");
+N("Hornbill","helmeted_hornbill",{sx:1,sy:1},"","The female seals herself into a tree hole with mud while raising chicks.","Africa and Asia");
+N("Hoopoe","helmeted_hornbill",{sx:.75,sy:.8,flip:1},"","It raises a fan-shaped crest, and its nest smells foul enough to deter predators.","Europe, Asia, Africa");
+N("Kingfisher","bird",{sx:.9,sy:.95},"","It hits the water so cleanly that engineers copied its bill for bullet trains.","Worldwide");
+N("Woodpecker","bird",{sx:.95,sy:1,flip:1},"","Its tongue wraps around the back of its skull, cushioning up to 20 pecks a second.","Worldwide");
+N("Hummingbird","bird",{sx:.55,sy:.6},"","Its wings beat up to 80 times a second and it's the only bird that can fly backwards.","The Americas");
+N("Swift","bird",{sx:.85,sy:.7,flip:1},"","It can stay in the air for ten months without landing, even sleeping on the wing.","Worldwide");
+N("Swallow","bird",{sx:.8,sy:.75},"","Some migrate 10,000 km and return to the very same nest each year.","Worldwide");
+N("Robin","bird",{sx:.8,sy:.85,flip:1},"","It sings at night under streetlights, and it may navigate by seeing magnetic fields.","Europe");
+N("Blue jay","bird",{sx:.9,sy:.9},"","Its feathers aren't blue: the color comes from light scattering in their structure.","North America");
+N("Crow","bird",{sx:1,sy:1,flip:1},"","Crows make tools, recognise human faces, and hold grudges for years.","Worldwide");
+N("Raven","bird",{sx:1.08,sy:1.05},"","It can mimic speech, solve multi-step puzzles, and plan for the future.","Northern Hemisphere");
+N("Magpie","bird",{sx:.95,sy:.95,flip:1},"","One of the few animals that recognises itself in a mirror.","Europe, Asia, North America");
+N("Starling","bird",{sx:.8,sy:.8},"","Flocks of thousands turn as one in shapes called murmurations.","Worldwide");
+N("Cardinal","bird",{sx:.85,sy:.9,flip:1},"","Males get their red color from the food they eat, so diet shows in the feathers.","North America");
+N("Goldfinch","bird",{sx:.7,sy:.75},"","It feeds almost entirely on seeds and nests later than most birds to match thistle season.","Europe and North America");
+N("Wren","bird",{sx:.65,sy:.7,flip:1},"","Tiny but very loud: its song carries ten times farther than its body length suggests.","Worldwide");
+N("Nightingale","bird",{sx:.78,sy:.8},"","A single male can sing over 200 different phrases through the night.","Europe, Asia, Africa");
+N("Lyrebird","hen",{sx:1,sy:1.05},"","It copies chainsaws, camera shutters and other birds well enough to fool them.","Australia");
+N("Peacock","hen",{sx:1.1,sy:1.05,flip:1},"","Its train has over 200 feathers and rattles at a pitch we barely hear.","South Asia");
+N("Pheasant","hen",{sx:1,sy:1},"","It explodes into the air almost vertically to escape, then glides away.","Asia and worldwide");
+N("Turkey","hen",{sx:1.1,sy:1.1,flip:1},"","Its head changes color with mood, and wild turkeys can fly 90 km/h in short bursts.","North America");
+N("Guineafowl","hen",{sx:.95,sy:.95},"","A noisy flock alarm goes off for anything unfamiliar, including snakes.","Africa");
+N("Chicken","hen",{sx:1,sy:1,flip:1},"","Hens talk to their chicks through the shell before they hatch.","Worldwide");
+N("Mallard","duck",{sx:1,sy:1},"","It can sleep with one eye open, and ducklings follow the first thing they see.","Northern Hemisphere");
+N("Mandarin duck","duck",{sx:.95,sy:.95,flip:1},"","Ducklings leap from tree holes up to 10 m up on their first day.","East Asia");
+N("Eider duck","duck",{sx:1.05,sy:1},"NT","Its down is the warmest natural insulation known, plucked by the female for her nest.","Arctic coasts");
+N("Merganser","duck",{sx:1,sy:.95},"","It has a saw-edged bill for gripping fish, unusual among ducks.","Northern Hemisphere");
+N("Goose","swan",{sx:.9,sy:.95},"","Flocks fly in a V so each bird rides the lift from the one ahead.","Worldwide");
+N("Black swan","swan",{sx:1,sy:1,flip:1},"","Europeans thought it impossible until 1697, which is where the phrase comes from.","Australia");
+N("Trumpeter swan","swan",{sx:1.05,sy:1.05},"","North America's heaviest native bird, back from fewer than 100 known birds in the 1930s.","North America");
+N("Flamingo","whooping_crane",{sx:1,sy:1.12,flip:1,j:.9},"","Pink comes from its food, and it feeds with its head upside down, filtering water.","Africa, Asia, the Americas");
+N("Heron","whooping_crane",{sx:1,sy:1},"","It folds its neck into an S in flight and spears fish with a lightning jab.","Worldwide");
+N("Stork","whooping_crane",{sx:1.05,sy:1.02,flip:1},"","It has no voice box, so it clatters its bill to greet its partner at the nest.","Europe, Asia, Africa");
+N("Sandhill crane","whooping_crane",{sx:1,sy:1},"","One of the oldest bird species alive, with fossils around 2.5 million years old.","North America and Siberia");
+/* more birds, and the reptiles */
+N("Pelican","shoebill",{sx:1.05,sy:1},"","Its throat pouch holds three times more than its stomach.","Coasts worldwide");
+N("Ibis","shoebill",{sx:.9,sy:1,flip:1},"","It sweeps its curved bill through mud, hunting entirely by touch.","Worldwide");
+N("Spoonbill","shoebill",{sx:.95,sy:1},"","It swings its flat bill side to side and snaps shut the moment it touches prey.","Worldwide");
+N("Albatross","california_condor",{sx:1.1,sy:1.05},"EN","The largest wingspan of any bird, 3.5 m, and it can circle the globe in 46 days.","Southern Ocean");
+N("Frigatebird","california_condor",{sx:.95,sy:.95,flip:1},"","It stays aloft for weeks and sleeps in ten-second bursts while flying.","Tropical oceans");
+N("Puffin","penguin",{sx:.8,sy:.85},"VU","It can hold a dozen small fish crosswise in its bill at once.","North Atlantic coasts");
+N("Emperor penguin","penguin",{sx:1.15,sy:1.15,flip:1},"NT","Males balance the egg on their feet through the Antarctic winter without eating.","Antarctica");
+N("King penguin","penguin",{sx:1.05,sy:1.1},"","Chicks wear brown fluff for a year and were once thought a separate species.","Sub-Antarctic islands");
+N("Gentoo penguin","penguin",{sx:.95,sy:1,flip:1},"","The fastest swimming bird, at 36 km/h.","Antarctic islands");
+N("Little penguin","penguin",{sx:.7,sy:.72},"","The smallest penguin, about 33 cm tall, coming ashore only after dark.","Australia and New Zealand");
+N("Cormorant","duck",{sx:1,sy:1.05},"","Its feathers soak up water to help it dive, so it spreads its wings to dry.","Worldwide");
+N("Gannet","duck",{sx:1.05,sy:1,flip:1},"","It dives from 30 m at 100 km/h, with air sacs in its face to cushion the hit.","North Atlantic");
+N("Seagull","duck",{sx:1,sy:.95},"","It can drink seawater, filtering the salt out through glands above its eyes.","Coasts worldwide");
+N("Tern","bird",{sx:1,sy:.85,flip:1},"","The Arctic tern migrates pole to pole and sees two summers a year.","Worldwide");
+N("Kiwi","kakapo",{sx:.8,sy:.85},"VU","It lays an egg up to a quarter of its own body weight, and its nostrils are on its bill tip.","New Zealand");
+N("Emu","whooping_crane",{sx:1.15,sy:1.1,flip:1},"","The male sits on the eggs for eight weeks without eating or drinking.","Australia");
+N("Ostrich","whooping_crane",{sx:1.2,sy:1.2},"","The largest bird, running 70 km/h, with an eye bigger than its brain.","Africa");
+N("Cassowary","whooping_crane",{sx:1.05,sy:1.05,flip:1},"","It wears a tall helmet of keratin and makes a boom too low for us to hear well.","New Guinea and Australia");
+N("Rhea","whooping_crane",{sx:1.1,sy:1.05},"NT","A flightless South American bird that uses its wings as sails when it runs.","South America");
+N("Roadrunner","hen",{sx:1,sy:.9,flip:1},"","It runs 32 km/h and can eat rattlesnakes.","Southwest US and Mexico");
+N("Macaw","parrot",{sx:1.05,sy:1.05},"","It can live 60 years and uses its bill as a third foot for climbing.","Latin America");
+N("Cockatoo","parrot",{sx:.95,sy:1,flip:1},"","Some wild cockatoos have invented dance moves and taught each other to open bins.","Australia and nearby islands");
+N("African grey parrot","parrot",{sx:.9,sy:.95},"EN","One famous grey learned over 100 words and could answer simple questions.","Central African forests");
+N("Budgerigar","parrot",{sx:.7,sy:.72,flip:1},"","Wild flocks of thousands roam the outback following rain.","Australia");
+N("Lovebird","parrot",{sx:.72,sy:.75},"","Pairs preen each other constantly and can carry nest material tucked into their feathers.","Africa");
+N("Kea","parrot",{sx:1,sy:1,flip:1},"EN","A mountain parrot smart enough to solve puzzles, and its calls make other keas playful.","New Zealand");
+N("Cockatiel","parrot",{sx:.8,sy:.85},"","Its crest tells you its mood: straight up means startled, flat means annoyed.","Australia");
+N("Bee hummingbird","bird",{sx:.45,sy:.5,flip:1},"NT","The smallest bird alive, lighter than a two-pence coin.","Cuba");
+N("Dodo","kakapo",{sx:1.1,sy:1.1},"EX","A flightless pigeon relative from Mauritius, gone within a century of sailors arriving.","Mauritius, until the 1600s");
+N("Passenger pigeon","bird",{sx:1,sy:1,flip:1},"EX","Flocks once darkened the sky for days; the last bird died in 1914.","North America, until 1914");
+N("Saltwater crocodile","gharial",{sx:1.1,sy:1.15},"","The largest living reptile, and it can swim hundreds of kilometres out to sea.","Southeast Asia and Australia");
+N("Nile crocodile","gharial",{sx:1.05,sy:1.1,flip:1},"","Mothers carry hatchlings to the water in their mouths, gently.","Africa");
+N("American alligator","gharial",{sx:1,sy:1.12},"","It digs 'gator holes' that hold water in droughts and keep other wildlife alive.","Southeast USA");
+N("Caiman","gharial",{sx:.85,sy:1,flip:1},"","Some caimans have bony plates even on their eyelids.","Central and South America");
+N("Green iguana","komodo_dragon",{sx:.9,sy:.95},"","It has a third 'eye' on top of its head that senses light and shadow.","Latin America");
+N("Marine iguana","komodo_dragon",{sx:.85,sy:.95,flip:1},"VU","The only sea-going lizard: it grazes underwater and sneezes out the salt.","Galápagos Islands");
+N("Chameleon","komodo_dragon",{sx:.7,sy:.8},"","Its eyes move separately, and its tongue shoots out twice its body length.","Africa and Madagascar");
+N("Gecko","komodo_dragon",{sx:.6,sy:.7,flip:1},"","Millions of tiny hairs on its toes let it hang from glass by one foot.","Warm regions worldwide");
+N("Frilled lizard","komodo_dragon",{sx:.8,sy:.9},"","It snaps open a wide neck frill and runs away on two legs.","Australia and New Guinea");
+N("Thorny devil","komodo_dragon",{sx:.6,sy:.7,flip:1},"","Grooves between its spines channel dew straight to its mouth.","Australian deserts");
+N("Gila monster","komodo_dragon",{sx:.7,sy:.85},"","One of the few venomous lizards; a medicine for diabetes came from its saliva.","Southwest US and Mexico");
+N("Monitor lizard","komodo_dragon",{sx:.95,sy:1,flip:1},"","It has a forked tongue like a snake and can count to at least six.","Africa, Asia, Australia");
+N("Tuatara","komodo_dragon",{sx:.75,sy:.85},"","Not a lizard but the last of an order older than the dinosaurs, living 100 years or more.","New Zealand");
+N("Galápagos tortoise","hawksbill",{sx:1,sy:1.1},"VU","It can live over 150 years and go a year without food or water.","Galápagos Islands");
+N("Leatherback turtle","hawksbill",{sx:1.1,sy:1.1,flip:1},"VU","The largest turtle, with a leathery shell, diving 1,200 m and keeping its body warm.","All oceans");
+N("Green sea turtle","hawksbill",{sx:1.05,sy:1.05},"EN","The only sea turtle that mostly eats plants, which turns its fat green.","Tropical oceans");
+N("Snapping turtle","hawksbill",{sx:.9,sy:1,flip:1},"","The alligator snapper wiggles a worm-shaped tongue to lure fish into its mouth.","North America");
+N("Box turtle","hawksbill",{sx:.85,sy:.95},"VU","A hinged shell lets it close up completely, and it may live over 100 years.","North America");
+N("Python","gharial",{sx:1.2,sy:.85,nolegs:1},"","It can swallow prey wider than its head and senses body heat with pits on its lips.","Africa, Asia, Australia");
+N("King cobra","gharial",{sx:1.15,sy:.8,nolegs:1,flip:1},"VU","The longest venomous snake, and the only one that builds a nest for its eggs.","South and Southeast Asia");
+/* snakes, amphibians and fish */
+N("Rattlesnake","gharial",{sx:1.15,sy:.85,nolegs:1},"","Its rattle is made of interlocking keratin rings and adds one each time it sheds.","The Americas");
+N("Anaconda","gharial",{sx:1.25,sy:.95,nolegs:1,flip:1},"","The heaviest snake, and it gives birth to live young in the water.","South America");
+N("Sea snake","gharial",{sx:1.1,sy:.8,nolegs:1},"","It can absorb some oxygen through its skin and has a paddle-shaped tail.","Indian and Pacific Oceans");
+N("Black mamba","gharial",{sx:1.15,sy:.8,nolegs:1,flip:1},"","Africa's fastest snake, at 16 km/h, and named for the ink-black inside of its mouth.","Sub-Saharan Africa");
+N("Boa constrictor","gharial",{sx:1.2,sy:.85,nolegs:1},"","It squeezes just enough to stop blood flow, not to crush.","Latin America");
+N("Garter snake","gharial",{sx:1,sy:.75,nolegs:1,flip:1},"","Thousands den together through winter in some places, in writhing balls.","North America");
+N("Slow worm","gharial",{sx:.95,sy:.7,nolegs:1},"","A legless lizard, not a snake, which can drop its tail to escape.","Europe and West Asia");
+N("Poison dart frog","frog",{sx:.85,sy:.85},"","Its bright colors warn that its skin is toxic, a defense built from its diet.","Central and South America");
+N("Tree frog","frog",{sx:.9,sy:.9,flip:1},"","Sticky toe pads let it cling to a leaf upside down in the rain.","Worldwide");
+N("Glass frog","frog",{sx:.8,sy:.85},"","You can see its heart and gut through translucent belly skin.","Central and South America");
+N("Bullfrog","frog",{sx:1.1,sy:1.05,flip:1},"","Its call carries a kilometre, and it will eat anything it can swallow.","North America");
+N("Goliath frog","frog",{sx:1.2,sy:1.15},"EN","The largest frog, the size of a cat, and it builds nursery ponds out of rocks.","West Africa");
+N("Wood frog","frog",{sx:.85,sy:.9,flip:1},"","It freezes solid through winter, heart stopped, then thaws out in spring.","North America");
+N("Darwin's frog","frog",{sx:.7,sy:.75},"EN","The male carries tadpoles in his vocal sac until they hop out as frogs.","Chile and Argentina");
+N("Surinam toad","frog",{sx:1,sy:.8,flip:1},"","Eggs sink into the mother's back skin, and tiny toads emerge from the pockets.","South America");
+N("Cane toad","frog",{sx:1.05,sy:1},"","Introduced to Australia in 1935 to eat beetles; it ignored them and spread instead.","Latin America, now Australia");
+N("Fire salamander","chinese_giant_salamander",{sx:.6,sy:.7},"","Its yellow markings warn of a skin toxin it can spray a short distance.","Europe");
+N("Newt","chinese_giant_salamander",{sx:.5,sy:.6,flip:1},"","It can regrow legs, eyes and parts of its brain.","Northern Hemisphere");
+N("Olm","chinese_giant_salamander",{sx:.6,sy:.55},"VU","A blind cave salamander that can go ten years without food and live a century.","Caves of southeast Europe");
+N("Hellbender","chinese_giant_salamander",{sx:.9,sy:.9,flip:1},"VU","North America's giant salamander, nicknamed the snot otter, breathing through skin folds.","Eastern US rivers");
+N("Caecilian","gharial",{sx:.9,sy:.7,nolegs:1},"","A limbless amphibian that burrows; some young eat their mother's outer skin.","Tropics worldwide");
+N("Tiger shark","shark",{sx:1,sy:1,flip:1},"NT","Nicknamed the garbage can of the sea for the odd things found in its stomach.","Tropical oceans");
+N("Basking shark","whale_shark",{sx:.95,sy:.95},"EN","The second largest fish, cruising with its mouth wide open to filter plankton.","Cool oceans");
+N("Nurse shark","shark",{sx:.9,sy:.95},"","It rests in piles on the seabed by day and can pump water over its gills while still.","Warm Atlantic coasts");
+N("Greenland shark","shark",{sx:1.1,sy:1.05,flip:1},"VU","It may live 400 years, making it the longest-lived vertebrate known.","Arctic and North Atlantic");
+N("Goblin shark","shark",{sx:.95,sy:.95},"","Its jaws shoot forward out of its head to snatch prey in the deep.","Deep oceans worldwide");
+N("Thresher shark","shark",{sx:1,sy:1.05,flip:1},"VU","It stuns fish with a whip-crack of its tail, which is as long as its body.","Oceans worldwide");
+N("Manta ray","hammerhead",{sx:1.2,sy:.9},"VU","It has the largest brain of any fish and visits reef 'cleaning stations' to be groomed.","Tropical oceans");
+N("Stingray","hammerhead",{sx:1,sy:.85,flip:1},"","It finds buried shellfish by sensing their faint electric fields.","Coastal waters worldwide");
+N("Electric eel","gharial",{sx:1.05,sy:.8,nolegs:1},"","It can deliver a 600-volt shock, and it's not an eel but a knifefish.","Amazon basin");
+N("Seadragon","seahorse",{sx:1.1,sy:1.05},"","Leaf-shaped fins make it look like drifting seaweed; males carry the eggs.","Southern Australia");
+N("Clownfish","fish",{sx:.85,sy:.9},"","It's immune to its anemone's sting, and all clownfish are born male.","Coral reefs of the Pacific");
+N("Parrotfish","fish",{sx:1,sy:1,flip:1},"","It chews coral and poops fine white sand — tonnes of a beach each year.","Coral reefs worldwide");
+N("Pufferfish","fish",{sx:.95,sy:1.1},"","It gulps water to balloon up, and its toxin has no antidote.","Warm oceans");
+N("Anglerfish","fish",{sx:1,sy:1.05,flip:1},"","It dangles a glowing lure made by bacteria in the lightless deep.","Deep oceans");
+N("Mudskipper","fish",{sx:.9,sy:.85},"","A fish that walks on mud, breathes through its skin and climbs mangrove roots.","Tropical coasts");
+N("Flying fish","fish",{sx:1,sy:.9,flip:1},"","It glides up to 200 m above the waves on wing-like fins to escape predators.","Warm oceans");
+N("Swordfish","blue_whale",{sx:.8,sy:.7},"","It heats its eyes and brain to see better in cold, deep water.","Oceans worldwide");
+N("Tuna","fish",{sx:1.15,sy:1,flip:1},"EN","Bluefin are warm-blooded for fish and can cross an ocean in weeks.","Oceans worldwide");
+N("Salmon","fish",{sx:1.05,sy:.95},"","It returns to the stream where it hatched, navigating by smell.","North Pacific and Atlantic");
+N("Seahorse dad","seahorse",{sx:.9,sy:1},"","Seahorses have no stomach, so they must eat almost constantly.","Shallow seas worldwide");
+N("Coelacanth","fish",{sx:1.1,sy:1.05,flip:1},"CR","Thought extinct for 65 million years until one turned up in a net in 1938.","Deep waters off Africa");
+N("Sturgeon","fish",{sx:1.2,sy:.8},"CR","Older than the dinosaurs, armoured with bony plates, and it can live 100 years.","Rivers and seas of the north");
+N("Piranha","fish",{sx:.8,sy:.9,flip:1},"","Mostly scavengers, and they bark and croak at each other.","South American rivers");
+N("Catfish","fish",{sx:1.1,sy:.95},"","Its whole body is covered in taste buds — over 175,000 of them.","Fresh water worldwide");
+N("Koi","fish",{sx:1,sy:1,flip:1},"","Some carp of this kind have lived over 200 years in Japanese ponds.","Ponds worldwide");
+N("Archerfish","fish",{sx:.85,sy:.9},"","It shoots a jet of water to knock insects off leaves, correcting for refraction.","Southeast Asian coasts");
+N("Lionfish","fish",{sx:.9,sy:1,flip:1},"","Beautiful and venomous, and an invader that now hunts across the Caribbean.","Indo-Pacific reefs");
+N("Ocean sunfish","fish",{sx:1.05,sy:1.3},"VU","The heaviest bony fish, and it sunbathes on its side at the surface.","Oceans worldwide");
+/* insects and other invertebrates */
+N("Honey bee","bee",{sx:1,sy:1},"","Workers dance in figure eights to tell the hive the direction and distance of flowers.","Worldwide");
+N("Bumblebee","bee",{sx:1.1,sy:1.1,flip:1},"","It buzzes its flight muscles to shake pollen loose, which many crops depend on.","Worldwide");
+N("Carpenter bee","bee",{sx:1.05,sy:1},"","It drills perfectly round tunnels in wood with its jaws, but eats only nectar.","Worldwide");
+N("Wasp","bee",{sx:.95,sy:.95},"","Paper wasps build their nests from chewed wood pulp — the first paper on Earth.","Worldwide");
+N("Hornet","bee",{sx:1.1,sy:1.05,flip:1},"","Japanese honey bees kill invading hornets by cooking them in a ball of vibrating bees.","Asia, Europe, North America");
+N("Ant","bee",{sx:.8,sy:.8},"","Leafcutter ants farm fungus underground and carry 50 times their own weight.","Everywhere but Antarctica");
+N("Termite","bee",{sx:.75,sy:.75,flip:1},"","Their mounds are air-conditioned by chimneys, inspiring building designs.","Tropics worldwide");
+N("Monarch butterfly","butterfly",{sx:1,sy:1},"","It takes several generations to complete the 4,000 km migration to Mexico.","North and Central America");
+N("Swallowtail butterfly","butterfly",{sx:1.05,sy:1.05,flip:1},"","Caterpillars flick out a forked orange gland that smells strongly to repel birds.","Worldwide");
+N("Blue morpho","butterfly",{sx:1.1,sy:1.02},"","Its blue is made by tiny ridges bending light, not by pigment.","Latin American rainforests");
+N("Atlas moth","butterfly",{sx:1.15,sy:1.1,flip:1},"","One of the largest moths, and adults have no mouths — they live about two weeks.","Southeast Asia");
+N("Luna moth","butterfly",{sx:1,sy:1.05},"","Its long tails spin in flight and confuse bat sonar.","North America");
+N("Hawk moth","butterfly",{sx:.9,sy:.95,flip:1},"","It hovers like a hummingbird and drinks through a tongue longer than its body.","Worldwide");
+N("Ladybird beetle","ladybug",{sx:1,sy:1},"","It plays dead and leaks a bitter yellow fluid when a predator picks it up.","Worldwide");
+N("Stag beetle","ladybug",{sx:1.05,sy:1,flip:1},"NT","Males wrestle with jaws like antlers, but they can barely pinch.","Europe");
+N("Rhinoceros beetle","ladybug",{sx:1.1,sy:1.05},"","It can carry about 100 times its own body weight.","Worldwide");
+N("Dung beetle","ladybug",{sx:.95,sy:.95,flip:1},"","It rolls its ball in a straight line by navigating with the Milky Way.","Every continent but Antarctica");
+N("Firefly","ladybug",{sx:.85,sy:.9},"","Its light is nearly 100% efficient, producing almost no heat at all.","Worldwide");
+N("Weevil","ladybug",{sx:.8,sy:.85,flip:1},"","With over 90,000 species, weevils are the largest family in the animal kingdom.","Worldwide");
+N("Grasshopper","bee",{sx:1,sy:.95},"","It hears through an eardrum on its abdomen and jumps 20 times its length.","Worldwide");
+N("Cricket","bee",{sx:.9,sy:.9,flip:1},"","Count its chirps for 15 seconds, add 37, and you get roughly the temperature in Fahrenheit.","Worldwide");
+N("Locust","bee",{sx:1.05,sy:1},"","When crowded, grasshoppers change color and behaviour and swarm in billions.","Africa, Asia, Australia");
+N("Praying mantis","bee",{sx:1,sy:1.05,flip:1},"","The only insect that can turn its head to look over its shoulder, and it sees in 3D.","Worldwide");
+N("Stick insect","gharial",{sx:1,sy:.68,nolegs:1},"","Some species have no males at all; females lay eggs that hatch into copies of themselves.","Worldwide");
+N("Dragonfly","butterfly",{sx:1,sy:.8},"","It catches 95% of the prey it chases and can fly in any direction, including backwards.","Worldwide");
+N("Damselfly","butterfly",{sx:.85,sy:.7,flip:1},"","It folds its wings along its body at rest, unlike a dragonfly.","Worldwide");
+N("Mayfly","butterfly",{sx:.75,sy:.7},"","Adults live a day or less, just long enough to mate, after a year underwater.","Fresh water worldwide");
+N("Cicada","bee",{sx:1,sy:1.05},"","Some broods spend 17 years underground, then emerge in the millions at once.","Worldwide");
+N("Aphid","ladybug",{sx:.6,sy:.6,flip:1},"","Ants herd aphids like cattle and 'milk' them for sugary honeydew.","Worldwide");
+N("Housefly","bee",{sx:.8,sy:.78},"","It tastes with its feet, and its eyes see movement four times faster than ours.","Worldwide");
+N("Mosquito","bee",{sx:.7,sy:.7,flip:1},"","Only females bite; they find us by the carbon dioxide we breathe out.","Worldwide");
+N("Flea","ladybug",{sx:.55,sy:.55},"","It jumps 100 times its height, accelerating faster than a rocket launch.","Worldwide");
+N("Silkworm moth","butterfly",{sx:.9,sy:.95},"","Its cocoon is a single silk thread up to 900 m long.","China, now worldwide");
+N("Tarantula","crab",{sx:1,sy:1.05},"","Many flick barbed hairs off their bellies at attackers instead of biting.","Warm regions worldwide");
+N("Orb weaver spider","crab",{sx:.9,sy:.95,flip:1},"","It rebuilds its wheel-shaped web most nights and eats the old silk.","Worldwide");
+N("Jumping spider","crab",{sx:.7,sy:.75},"","It has eight eyes, judges distance by blurring images, and stalks prey like a cat.","Worldwide");
+N("Scorpion","crab",{sx:1,sy:1,flip:1},"","It glows blue-green under ultraviolet light, and nobody is sure why.","Warm regions worldwide");
+N("Horseshoe crab","hawksbill",{sx:.85,sy:.9},"VU","Its blue blood is used to test medicines for contamination; the design is 450 million years old.","Atlantic and Asian coasts");
+N("Hermit crab","crab",{sx:.9,sy:.95},"","Crabs line up by size to swap shells in an orderly chain.","Coasts worldwide");
+N("Coconut crab","crab",{sx:1.15,sy:1.1,flip:1},"VU","The largest land invertebrate, strong enough to crack a coconut with its claw.","Indian and Pacific islands");
+N("Fiddler crab","crab",{sx:.85,sy:.9},"","Males wave one huge claw to attract mates, and it regrows if lost.","Coasts worldwide");
+N("Lobster","crab",{sx:1.1,sy:1},"","It tastes with its legs, and old lobsters keep growing by moulting.","Cold ocean floors");
+N("Shrimp","crab",{sx:.8,sy:.85,flip:1},"","The pistol shrimp snaps its claw so fast the bubble it makes is as loud as a gunshot.","Oceans worldwide");
+N("Krill","crab",{sx:.7,sy:.75},"","Swarms can be seen from space, and they feed whales, penguins and seals.","Southern Ocean");
+N("Giant squid","octopus",{sx:1.15,sy:1.15},"","It has the largest eyes in the animal kingdom, the size of dinner plates.","Deep oceans");
+N("Cuttlefish","octopus",{sx:.95,sy:.9,flip:1},"","It changes color and texture in a second, even though it's colorblind.","Oceans worldwide");
+N("Nautilus","snail",{sx:1,sy:1},"","It has survived with the same shell design for 500 million years and has up to 90 tentacles.","Deep Pacific reefs");
+N("Sea slug","snail",{sx:.9,sy:.85,flip:1},"","Some steal stinging cells from jellyfish, or chloroplasts, and live off sunlight.","Oceans worldwide");
+N("Giant clam","snail",{sx:1.1,sy:1.05},"VU","It can weigh 200 kg and farms algae inside its own colorful flesh.","Indo-Pacific reefs");
+N("Box jellyfish","jellyfish",{sx:.95,sy:1},"","It has 24 eyes and is one of the most venomous animals in the sea.","Indo-Pacific waters");
+N("Portuguese man o' war","jellyfish",{sx:1.05,sy:1.05,flip:1},"","Not one animal but a colony of four kinds working together, sailing on a gas float.","Warm oceans");
+/* a last mixed batch */
+N("Sea urchin","jellyfish",{sx:.9,sy:.9},"","It walks on hundreds of tiny tube feet and its mouth is called Aristotle's lantern.","Ocean floors worldwide");
+N("Sea star","jellyfish",{sx:1,sy:.95,flip:1},"","It pushes its stomach out through its mouth to digest prey outside its body.","Oceans worldwide");
+N("Sea cucumber","gharial",{sx:1,sy:.8,nolegs:1},"","When threatened, some throw out their own sticky insides and grow them back.","Ocean floors worldwide");
+N("Coral polyp","jellyfish",{sx:.8,sy:.85},"","Reefs are built by animals the size of a pinhead, each sharing food with algae inside it.","Tropical seas");
+N("Sponge","snail",{sx:1.05,sy:1.1},"","One of the simplest animals: no organs, and it pumps thousands of litres of water a day.","Oceans worldwide");
+N("Earthworm","gharial",{sx:.9,sy:.65,nolegs:1},"","It eats its way through soil, and Darwin spent 40 years studying how it makes farmland.","Soil worldwide");
+N("Leech","gharial",{sx:.85,sy:.62,nolegs:1,flip:1},"","Its saliva stops blood clotting so well that surgeons still use leeches today.","Fresh water worldwide");
+N("Tardigrade","hedgehog",{sx:.5,sy:.55},"","It survives boiling, freezing and the vacuum of space by drying into a tiny husk.","Everywhere, in water films");
+N("Velvet worm","gharial",{sx:.9,sy:.68,nolegs:1},"","It fires two jets of glue to trap prey, and its body plan is over 500 million years old.","Southern rainforests");
+N("Peacock spider","crab",{sx:.6,sy:.65,flip:1},"","Males raise a fan of bright scales and dance for the female, waving their legs.","Australia");
+N("Snow leopard cub","snow_leopard",{sx:.8,sy:.85},"VU","Cubs stay with their mother for nearly two years learning to hunt on cliffs.","Mountains of Central Asia");
+N("Baby elephant","elephant",{sx:.75,sy:.8,flip:1},"EN","Calves suck their trunks for comfort, much as human babies suck their thumbs.","Africa and Asia");
+N("Arctic wolf","red_wolf",{sx:1,sy:1.02},"","It can go months on the tundra without a single sunrise.","Canadian Arctic");
+N("Mexican wolf","red_wolf",{sx:.9,sy:.95,flip:1},"EN","The rarest gray wolf; all wild ones descend from just seven animals.","Southwest US and Mexico");
+N("Iberian lynx","amur_leopard",{sx:.92,sy:1},"VU","Back from fewer than 100 cats in 2002 to over 2,000 today.","Spain and Portugal");
+N("Scottish wildcat","cat",{sx:1.05,sy:1,flip:1},"CR","A tiger-striped wildcat down to a handful of pure animals in the Highlands.","Scotland");
+N("Black-footed ferret","numbat",{sx:.95,sy:.9},"EN","Declared extinct twice, then rediscovered; all living ones descend from 18 animals.","North American prairies");
+N("Sea mink","numbat",{sx:1,sy:.9,flip:1},"EX","Hunted out by the 1890s, and known mostly from bones in shell heaps.","North Atlantic coast, until the 1890s");
+N("Thylacine","african_wild_dog",{sx:1.05,sy:1},"EX","The Tasmanian tiger, a striped marsupial; the last known one died in 1936.","Tasmania, until 1936");
+N("Steller's sea cow","dugong",{sx:1.2,sy:1.15,flip:1},"EX","A 9 m relative of the dugong, hunted to extinction within 27 years of being described.","Bering Sea, until 1768");
+N("Great auk","penguin",{sx:1.05,sy:1.05},"EX","A flightless North Atlantic seabird, hunted out by 1844.","North Atlantic, until 1844");
+N("Woolly mammoth","elephant",{sx:1.05,sy:1.1,flip:1},"EX","The last ones lived on an Arctic island until about 4,000 years ago, after the pyramids were built.","Ice-age Eurasia and North America");
+N("Sabre-toothed cat","sumatran_tiger",{sx:1,sy:1.05},"EX","Its 18 cm canines were fragile, so it likely used a precise bite to the throat.","The Americas, until 10,000 years ago");
+N("Giant ground sloth","mountain_gorilla",{sx:1.15,sy:1.15,flip:1},"EX","As big as an elephant, it reared up to pull down branches.","The Americas, until 10,000 years ago");
+N("Triceratops","rhino",{sx:1.1,sy:1.1},"EX","Its frill and three horns grew over a skull up to 2.5 m long.","North America, 68 million years ago");
+N("Tyrannosaurus rex","kangaroo",{sx:1.15,sy:1.1,flip:1},"EX","Its bite could crush a car, and it may have had feathers as a youngster.","North America, 68 million years ago");
+N("Velociraptor","kangaroo",{sx:.7,sy:.75},"EX","Really turkey-sized and feathered, with one big sickle claw on each foot.","Mongolia, 75 million years ago");
+N("Brachiosaurus","giraffe",{sx:1.2,sy:1.2},"EX","Its front legs were longer than its back legs, so its neck reached five storeys up.","North America, 150 million years ago");
+N("Pterodactyl","california_condor",{sx:1,sy:1},"EX","A flying reptile, not a dinosaur, that walked on all fours when grounded.","Europe, 150 million years ago");
+N("Archaeopteryx","bird",{sx:1.05,sy:1,flip:1},"EX","Feathers plus teeth and a bony tail: the fossil that linked birds to dinosaurs.","Germany, 150 million years ago");
+N("Megalodon","shark",{sx:1.3,sy:1.25},"EX","Its teeth were as big as a hand, and it may have reached 18 m.","Oceans, until 3.6 million years ago");
+N("Dunkleosteus","fish",{sx:1.15,sy:1.1,flip:1},"EX","An armoured fish with bony shearing plates instead of teeth.","Ancient seas, 360 million years ago");
+N("Trilobite","ladybug",{sx:1.05,sy:1.1},"EX","Among the first animals with complex eyes, made of stone-like calcite lenses.","Ancient seas, 250+ million years ago");
+N("Ammonite","snail",{sx:1,sy:1},"EX","A spiral-shelled relative of squid that vanished with the dinosaurs.","Ancient seas, until 66 million years ago");
+N("Quagga","grevys_zebra",{sx:1,sy:1},"EX","A zebra striped only on its front half, hunted out by 1883.","South Africa, until 1883");
+N("Golden toad","frog",{sx:.85,sy:.9,flip:1},"EX","Bright orange and gone within a few years in the 1980s, an early sign of amphibian decline.","Costa Rica, until 1989");
+N("Baiji dolphin","dolphin",{sx:1,sy:1},"CR","The Yangtze river dolphin, not seen since 2002 and likely gone.","Yangtze River, China");
+N("Kiwi chick","kiwi",{sx:.75,sy:.8,flip:1},"VU","Chicks hatch fully feathered and feed themselves within a week.","New Zealand");
+N("Okapi calf","okapi",{sx:.8,sy:.85},"EN","Calves don't poop for their first month, which keeps predators from finding them.","DR Congo forests");
+N("Giant panda cub","panda",{sx:.75,sy:.8,flip:1},"VU","Newborn cubs weigh about 100 g, roughly 1/900th of their mother.","Mountains of central China");
+/* ---------- proper shapes for insects, spiders, crustaceans and the rest ----------
+   Reusing a beetle for a fly or a crab for a lobster never read right, so these
+   families get their own outlines. */
+var BUGS={
+  beetle:[[38,6],[62,6],[66,16],[72,22],[86,12],[74,30],[76,40],[90,40],[77,48],[75,60],[88,70],[70,66],[66,78],[56,90],[44,90],[34,78],[30,66],[12,70],[25,60],[23,48],[10,40],[24,40],[26,30],[14,12],[28,22],[34,16]],
+  flyer:[[44,4],[56,4],[60,12],[58,18],[66,20],[92,26],[98,40],[84,46],[64,34],[68,44],[70,62],[64,80],[54,92],[46,92],[36,80],[30,62],[32,44],[36,34],[16,46],[2,40],[8,26],[34,20],[42,18],[40,12]],
+  hopper:[[6,30],[14,24],[26,26],[40,22],[56,20],[80,26],[92,36],[74,42],[80,52],[86,74],[78,76],[70,56],[58,48],[46,48],[34,46],[30,58],[22,62],[28,46],[20,44],[12,56],[6,54],[16,42],[8,36]],
+  dragonfly:[[46,4],[54,4],[58,10],[56,16],[66,16],[94,20],[96,26],[68,26],[62,28],[70,30],[96,38],[94,44],[66,40],[58,38],[60,56],[58,80],[54,96],[46,96],[42,80],[40,56],[42,38],[34,40],[6,44],[4,38],[32,30],[38,28],[32,26],[4,26],[6,20],[34,16],[44,16],[42,10]],
+  spider:[[50,14],[58,20],[62,26],[88,10],[64,32],[63,36],[92,32],[64,42],[62,46],[90,56],[58,52],[58,58],[82,74],[54,64],[60,70],[56,80],[50,86],[44,80],[40,70],[46,64],[18,74],[42,58],[42,52],[10,56],[38,46],[37,42],[8,32],[36,36],[38,32],[12,10],[42,26],[42,20]],
+  scorpion:[[6,28],[22,22],[28,32],[16,38],[30,42],[24,54],[12,60],[22,66],[36,56],[44,48],[56,46],[68,48],[80,52],[90,44],[94,32],[86,18],[74,12],[68,18],[78,26],[80,36],[72,42],[62,40],[52,36],[42,34],[34,30]],
+  lobster:[[2,26],[18,18],[30,30],[20,36],[34,36],[48,32],[64,30],[80,30],[90,32],[100,18],[104,28],[96,38],[104,48],[100,58],[90,42],[78,44],[70,58],[58,44],[46,58],[36,44],[24,52],[30,60],[18,68],[2,56],[18,44],[26,40]],
+  shrimp:[[8,40],[20,28],[40,24],[60,26],[78,34],[90,48],[96,62],[98,74],[86,70],[80,56],[68,60],[60,50],[48,60],[38,50],[26,56],[16,50],[8,50]],
+  horseshoe:[[50,4],[64,8],[74,18],[78,32],[74,46],[64,52],[68,58],[64,72],[56,78],[58,84],[54,116],[46,116],[42,84],[44,78],[36,72],[32,58],[36,52],[26,46],[22,32],[26,18],[36,8]],
+  ray:[[50,8],[72,16],[94,38],[84,52],[60,56],[58,66],[56,104],[44,104],[42,66],[40,56],[16,52],[6,38],[28,16]],
+  worm:[[4,50],[14,40],[40,36],[70,38],[92,44],[98,50],[92,56],[70,62],[40,64],[14,60]],
+  sponge:[[30,20],[70,20],[78,40],[80,70],[70,88],[30,88],[20,70],[22,40]],
+  tardigrade:[[12,42],[24,30],[50,26],[74,30],[88,40],[90,52],[86,64],[90,74],[78,74],[74,62],[60,64],[58,76],[44,76],[42,64],[28,66],[24,76],[12,74],[16,60],[10,52]]
+};
+(function(){ // a ring of points: sea stars and urchins
+  function ring(n,R,r,cx,cy){var p=[];for(var i=0;i<n*2;i++){var a=-Math.PI/2+i*Math.PI/n,d=i%2?r:R;p.push([+(cx+d*Math.cos(a)).toFixed(1),+(cy+d*Math.sin(a)).toFixed(1)])}return p}
+  BUGS.star=ring(5,46,17,50,50);
+  BUGS.urchin=ring(11,46,29,50,50);
+})();
+/* redraw an animal on a template of its own family, keeping its fact */
+function RE(name,tmpl,o){
+  var k=name.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+  if(!ANIMALS[k]||!BUGS[tmpl])return;
+  var A=Vsafe(name,{pts:BUGS[tmpl]},o||{});
+  if(A)ANIMALS[k]=A;
+}
+RE("Ladybird beetle","beetle",{sx:1,sy:1});
+RE("Stag beetle","beetle",{sx:1.05,sy:1.05,flip:1});
+RE("Rhinoceros beetle","beetle",{sx:1.08,sy:1});
+RE("Dung beetle","beetle",{sx:.95,sy:.95,flip:1});
+RE("Firefly","beetle",{sx:.85,sy:1.05});
+RE("Weevil","beetle",{sx:.9,sy:1,flip:1});
+RE("Trilobite","beetle",{sx:1.05,sy:.95});
+RE("Aphid","beetle",{sx:.8,sy:.85,flip:1});
+RE("Flea","beetle",{sx:.8,sy:.9});
+RE("Ant","beetle",{sx:.85,sy:1.05,flip:1});
+RE("Termite","beetle",{sx:.9,sy:1});
+RE("Honey bee","flyer",{sx:1,sy:1});
+RE("Bumblebee","flyer",{sx:1.08,sy:1.02,flip:1});
+RE("Carpenter bee","flyer",{sx:1.04,sy:1});
+RE("Wasp","flyer",{sx:.95,sy:1.05,flip:1});
+RE("Hornet","flyer",{sx:1.05,sy:1.05});
+RE("Housefly","flyer",{sx:.9,sy:.9,flip:1});
+RE("Mosquito","flyer",{sx:.85,sy:1});
+RE("Cicada","flyer",{sx:1,sy:1.05,flip:1});
+RE("Grasshopper","hopper",{sx:1,sy:1});
+RE("Cricket","hopper",{sx:.95,sy:1,flip:1});
+RE("Locust","hopper",{sx:1.05,sy:1});
+RE("Praying mantis","hopper",{sx:1,sy:1.05,flip:1});
+RE("Stick insect","hopper",{sx:1.1,sy:.9});
+RE("Dragonfly","dragonfly",{sx:1,sy:1});
+RE("Damselfly","dragonfly",{sx:.92,sy:1.02,flip:1});
+RE("Mayfly","dragonfly",{sx:.9,sy:.95});
+RE("Tarantula","spider",{sx:1.05,sy:1.05});
+RE("Orb weaver spider","spider",{sx:.95,sy:1,flip:1});
+RE("Jumping spider","spider",{sx:.9,sy:.95});
+RE("Peacock spider","spider",{sx:.85,sy:.9,flip:1});
+RE("Scorpion","scorpion",{sx:1,sy:1.3});
+RE("Lobster","lobster",{sx:1,sy:1.5});
+RE("Shrimp","shrimp",{sx:1,sy:1.15,flip:1});
+RE("Krill","shrimp",{sx:.9,sy:1.1});
+RE("Horseshoe crab","horseshoe",{sx:1,sy:1});
+RE("Manta ray","ray",{sx:1.1,sy:.95});
+RE("Stingray","ray",{sx:1,sy:1,flip:1});
+RE("Sea star","star",{sx:1,sy:1});
+RE("Sea urchin","urchin",{sx:1,sy:1,j:.8});
+RE("Earthworm","worm",{sx:1,sy:1});
+RE("Leech","worm",{sx:.95,sy:1.1,flip:1});
+RE("Velvet worm","worm",{sx:1,sy:1.05});
+RE("Caecilian","worm",{sx:1.05,sy:.95,flip:1});
+RE("Sea cucumber","worm",{sx:1,sy:1.15});
+RE("Electric eel","worm",{sx:1.1,sy:.9,flip:1});
+RE("Sponge","sponge",{sx:1,sy:1});
+RE("Coral polyp","sponge",{sx:.9,sy:1.05,flip:1});
+RE("Tardigrade","tardigrade",{sx:1,sy:1});
 
 (function(){
   Object.keys(REDESIGN).forEach(function(k){ANIMALS[k]=REDESIGN[k]});
@@ -1609,7 +2198,7 @@ function animalForMonth(mi){
     var r=rng(hashStr("animals"+settings.start+":"+animalSeq.length));
     for(var i=pool.length-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t}
     // the first time through, threatened species come before familiar animals
-    if(animalSeq.length===ANIMAL_ORDER.length)pool.sort(function(x,y){return (!(FACTS[x]&&FACTS[x][0]))-(!(FACTS[y]&&FACTS[y][0]))});
+    if(animalSeq.length===ANIMAL_ORDER.length){var thr={CR:1,EN:1,VU:1};pool.sort(function(x,y){return (!(FACTS[x]&&thr[FACTS[x][0]]))-(!(FACTS[y]&&thr[FACTS[y][0]]))})}
     // keep the most recent animals away from the start of the new cycle
     var recent=animalSeq.slice(-Math.floor(all.length/2));
     if(animalSeq.length!==ANIMAL_ORDER.length)pool.sort(function(x,y){return (recent.indexOf(x)>-1)-(recent.indexOf(y)>-1)});
@@ -1637,7 +2226,7 @@ function designFor(ym){
 }
 function animalName(ym){return designFor(ym).name}
 /* One thing worth knowing about each animal. [IUCN Red List status, fact, where it lives] */
-var STATUS={CR:"Critically endangered",EN:"Endangered",VU:"Vulnerable",EX:"Extinct"};
+var STATUS={CR:"Critically endangered",EN:"Endangered",VU:"Vulnerable",NT:"Near threatened",EX:"Extinct"};
 var FACTS={
   amur_leopard:["CR","One of the rarest big cats on Earth. Long legs and a thick coat carry it through deep snow, and protected forests have helped it climb from a few dozen to around a hundred in the wild.","Russian Far East and northeast China"],
   sumatran_tiger:["CR","The smallest living tigers. Only a few hundred remain, all on one island, where forest is being cleared for palm oil and paper.","Sumatra, Indonesia"],
@@ -1738,6 +2327,7 @@ var FACTS={
   deer_:null
 };
 delete FACTS.deer_;
+Object.assign(FACTS,EXTRA_FACTS);
 function animalKey(ym){return designFor(ym).animal}
 function animalCard(ym){
   var k=animalKey(ym),f=FACTS[k],name=animalName(ym);
@@ -2176,6 +2766,7 @@ function renderDay(){
 
   var h='<div class="dayhead"><button class="circ" id="dp" aria-label="Previous day">\u2039</button>'+
     '<div class="dmid"><h2>'+DOW[parse(ds).getDay()].slice(0,3)+', '+MONTHS[parse(ds).getMonth()]+' '+parse(ds).getDate()+'</h2>'+
+'<div class="dtags"><button class="chip sm" id="cmpBtn">\u21bb Same day, other years</button></div>'+
     (ds!==t?'<button class="jump" id="dt">Back to today</button>':'')+'</div>'+
     '<button class="circ" id="dn" aria-label="Next day">\u203a</button></div>';
 
@@ -2208,6 +2799,7 @@ function renderDay(){
   document.getElementById("dn").onclick=function(){goDay(1)};
   onSwipe(el,function(){goDay(-1,true)},function(){goDay(1,true)});
   var dt=document.getElementById("dt");if(dt)dt.onclick=function(){dayDs=today();redraw("#dp")};
+  document.getElementById("cmpBtn").onclick=function(){cmpDs=dayDs;setView("compare")};
   var nt=document.getElementById("note"),ntT=null;
   if(nt)nt.oninput=function(){clearTimeout(ntT);var v=nt.value,d=dayDs;ntT=setTimeout(function(){setMeta(d,{note:v})},400)};
 
@@ -2323,9 +2915,61 @@ function renderHeader(){
 function render(){
   renderHeader();
   if(view==="bouquet")renderBouquet();
+  else if(view==="compare")renderCompare();
   else if(view==="plan")renderPlan();
   else if(view==="tips")renderTips();
 }
+/* ---------- the same date, year by year ---------- */
+var cmpDs=null;
+function sameDayOtherYears(ds){
+  var d=parse(ds),m=d.getMonth(),day=d.getDate(),out=[],t=today();
+  var y0=parse(settings.start).getFullYear(),y1=parse(t).getFullYear();
+  for(var y=y1;y>=y0;y--){
+    var dd=new Date(y,m,day);
+    if(dd.getMonth()!==m)continue;                 // Feb 29 in a common year
+    var s2=iso(dd);
+    if(s2<settings.start||s2>t)continue;
+    out.push(s2);
+  }
+  return out;
+}
+function renderCompare(){
+  var el=document.getElementById("v-compare"),ds=cmpDs||today(),t=today();
+  var list=sameDayOtherYears(ds),d=parse(ds);
+  var h='<div class="spread"><h2>Same day, other years</h2>'+
+    '<p class="hand muted">'+MONTHS[d.getMonth()]+' '+d.getDate()+' in every year you have tracked. Tap a year to open that day.</p></div>'+
+    '<div class="dayhead"><button class="circ" id="cp" aria-label="Previous day">\u2039</button>'+
+    '<div class="dmid"><h2>'+MONTHS[d.getMonth()]+' '+d.getDate()+'</h2>'+
+    '<div class="dtags"><button class="chip sm" id="cback">\u2039 Back to the day</button></div></div>'+
+    '<button class="circ" id="cn" aria-label="Next day">\u203a</button></div>';
+  if(!list.length){
+    h+='<p class="muted" style="margin-top:18px">You have not tracked this date yet.</p>';
+  }else{
+    h+='<ul class="cmp">';
+    list.forEach(function(s2){
+      var yi=Math.max(0,yearIdxOf(s2.slice(0,7))),sc=scoreFor(s2,checks(s2)),tier=tierOf(sc.p);
+      var started=s2>=settings.start,any=sc.got||sc.water;
+      var ym2=ymOf(s2),y2=+ym2.slice(0,4),m2=+ym2.slice(5)-1;
+      h+='<li><button class="cmprow" data-ds="'+s2+'">'+
+        '<span class="cl"><b>'+fmtDay(s2)+', '+s2.slice(0,4)+'</b>'+
+        '<span class="sb">Year '+(yi+1)+' \u00b7 '+animalName(ymOf(s2))+(s2===t?' \u00b7 today':'')+'</span></span>'+
+        '<span class="cr">'+(any?sc.got+'/'+sc.max:started?"\u2014":"")+'<span class="sb">'+(any?tier.name:started?"nothing marked":"")+'</span></span>'+
+        '<svg class="cmpan" viewBox="-116 -116 232 232" aria-hidden="true">'+flower(y2,m2,104,designFor(ym2))+'</svg>'+
+        '</button></li>';
+    });
+    h+='</ul>';
+  }
+  el.innerHTML=h;
+  function go(n){cmpDs=addDays(ds,n);renderCompare();}
+  document.getElementById("cp").onclick=function(){go(-1)};
+  document.getElementById("cn").onclick=function(){go(1)};
+  onSwipe(el,function(){go(-1)},function(){go(1)});
+  document.getElementById("cback").onclick=function(){dayDs=ds<=t?ds:today();setView("bouquet")};
+  el.querySelectorAll("[data-ds]").forEach(function(b){
+    b.onclick=function(){dayDs=b.getAttribute("data-ds");setView("bouquet")};
+  });
+}
+
 function setView(v){
   view=v;
   document.querySelectorAll("nav button").forEach(function(b){b.setAttribute("aria-selected",String(b.getAttribute("data-v")===v))});
