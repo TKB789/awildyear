@@ -384,6 +384,19 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 .slots .sn:focus{outline:none;border-bottom-color:var(--ink);background:var(--wash)}
 .slots li.on .sn{font-weight:600}
 @media (max-width:600px){.slots li{grid-template-columns:62px 26px minmax(0,1fr);gap:0 6px}.slots .box{width:22px;height:22px}}
+/* search entries */
+.srch{display:block;width:100%;box-sizing:border-box;font-family:var(--disp);font-size:1rem;padding:9px 12px;margin-top:10px;
+  border:1.5px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink)}
+.srch:focus{outline:2px solid var(--ink);outline-offset:2px}
+.sres{list-style:none;margin:12px 0 0;padding:0}
+.sres li+li{margin-top:8px}
+.sres button{display:block;width:100%;text-align:left;background:var(--paper);color:var(--ink);border:1.4px solid var(--ink);
+  border-radius:12px 10px 13px 11px;padding:8px 12px;cursor:pointer;font-family:inherit;font-size:1rem}
+.sres button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.sres b{display:block;font-size:.95rem}
+.sres .sw2{display:inline;font-family:var(--hand);color:var(--ink2);font-weight:400;margin-left:6px}
+.sres span{display:block;font-size:.92rem;line-height:1.4;color:var(--ink2);overflow-wrap:anywhere}
+.sres mark{background:#F6E08A;color:#141414;border-radius:3px;padding:0 1px}
 /* same day, other years */
 .cmp{list-style:none;margin:14px 0 0;padding:0}
 .cmp li+li{margin-top:8px}
@@ -609,7 +622,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;
 /* ---------- state ---------- */
 var settings={start:today(),wake:"06:30",end:"22:00",gview:"grown",ahead:0,theme:"auto",lastBackup:""};
 var months={};           // {"2026-09": {"15": {c:[slot keys], s:{slot:note}, p:0.8, w:3, t:ms}}}
-var view="bouquet", dayDs=today();
+var view="bouquet", dayDs=today(), gyi=null, searchQ="";
 
 function loadLocal(){
   try{
@@ -2636,9 +2649,13 @@ function onSwipe(el,prev,next){
   },{passive:true});
 }
 function renderBouquet(){
-  var el=document.getElementById("v-bouquet"),t=today(),yi=currentYearIdx();
-  var mi=Math.max(0,monthIndex(t.slice(0,7))),count=mi-yi*12+1;
-  var cur=yearMonthsFor(yi)[count-1],mode=settings.gview||"grown",ahead=Math.max(0,Math.min(12,settings.ahead||0));
+  var el=document.getElementById("v-bouquet"),t=today(),cyi=currentYearIdx(),mode=settings.gview||"grown";
+  var maxYi=mode==="grown"?cyi:cyi+50;
+  var yi=gyi===null?cyi:Math.max(0,Math.min(maxYi,gyi));gyi=yi===cyi?null:yi;
+  var mi=Math.max(0,monthIndex(t.slice(0,7))),ccount=mi-cyi*12+1;
+  var count=yi<cyi?13:yi>cyi?0:ccount; // months reached this year (13 = all finished)
+  var yms=yearMonthsFor(yi),cur=yi===cyi?yms[ccount-1]:yms[0];
+  var ahead=yi===cyi?Math.max(0,Math.min(12,settings.ahead||0)):0;
   var seg='<div class="seg" role="group" aria-label="Animal view">'+
     [["month","Month"],["grown","So far"],["year","Full year"]].map(function(o){
       return '<button data-gv="'+o[0]+'" aria-pressed="'+(mode===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>';
@@ -2654,18 +2671,24 @@ function renderBouquet(){
     s+='<div class="mswipe" id="mSwipe">'+top+monthSVG(ym)+'</div>'+progressHTML()+animalCard(ym);
   }else{
     var shown=mode==="year"?12:Math.min(12,count+ahead);
-    var over=mode==="year"?0:Math.max(0,count+ahead-12);
-    var line=mode==="year"
-      ? 'Year '+(yi+1)+' · '+(count-1)+' finished, '+(12-count)+' ahead'
+    var over=mode==="year"||yi!==cyi?0:Math.max(0,count+ahead-12);
+    var line=yi<cyi?'All 12 finished'
+      : yi>cyi?'All 12 ahead'
+      : mode==="year"
+      ? (count-1)+' finished, '+(12-count)+' ahead'
       : MONTHS[cur.m]+' · '+animalName(cur.ym)+' · '+colorName(cur.ym)+' · '+(count-1)+' finished'+(ahead?' · '+ahead+' ahead':'');
-    s+='<div class="ghead"><p class="hand">'+line+'</p></div>';
-    if(mode==="grown"){
+    var span=MONTHS[yms[0].m].slice(0,3)+' '+yms[0].y+' – '+MONTHS[yms[11].m].slice(0,3)+' '+yms[11].y;
+    top='<div class="mhead"><button class="circ" id="gpy" aria-label="Previous year"'+(yi<=0?" disabled":"")+'>‹</button>'+
+      '<div class="mt"><h2>Year '+(yi+1)+'</h2><p class="hand muted">'+span+' · '+line+'</p>'+
+      (yi!==cyi?'<button class="jump" id="gty">Back to this year</button>':'')+'</div>'+
+      '<button class="circ" id="gny" aria-label="Next year"'+(yi>=maxYi?" disabled":"")+'>›</button></div>';
+    if(mode==="grown"&&yi===cyi){
       s+='<div class="ahead"><span class="hand">Months ahead</span>'+
         '<button class="circ sm" id="ahm" aria-label="Show fewer months ahead"'+(ahead<=0?" disabled":"")+'>−</button>'+
         '<b aria-live="polite">'+ahead+'</b>'+
         '<button class="circ sm" id="ahp" aria-label="Show more months ahead"'+(ahead>=12?" disabled":"")+'>+</button></div>';
     }
-    s+=gardenSVG(yi,shown,true)+progressHTML()+animalCard(cur.ym);
+    s+='<div class="mswipe" id="ySwipe">'+top+gardenSVG(yi,shown,true)+'</div>'+progressHTML()+animalCard(cur.ym);
     if(over>0){
       var nx=yearMonthsFor(yi+1);
       s+='<h3 class="hand" style="font-weight:400">Coming up in year '+(yi+2)+'</h3>'+gardenSVG(yi+1,over,true);
@@ -2676,7 +2699,7 @@ function renderBouquet(){
   Object.keys(months).forEach(function(ym){Object.keys(months[ym]).forEach(function(d){var r=months[ym][d];if(r.p>0)logged++;if(r.p>=.9)full++})});
 
   var past="";
-  for(var y=yi-1;y>=0;y--){
+  for(var y=cyi-1;y>=0;y--){
     var ms=yearMonthsFor(y);
     past+='<h3>Year '+(y+1)+' · '+MONTHS[ms[0].m].slice(0,3)+' '+ms[0].y+' – '+MONTHS[ms[11].m].slice(0,3)+' '+ms[11].y+'</h3>'+gardenSVG(y,12,false);
   }
@@ -2713,6 +2736,21 @@ function renderBouquet(){
     if(swiped)return;
     var f=document.getElementById(n<0?"gpm":"gnm");if(f&&!f.disabled)f.focus({preventScroll:true});else{f=document.getElementById("gnm");if(f)f.focus({preventScroll:true})}
   }
+  function goYear(n,swiped){
+    var cy=currentYearIdx(),lim=(settings.gview||"grown")==="grown"?cy:cy+50;
+    var cur=gyi===null?cy:gyi,nx=Math.max(0,Math.min(lim,cur+n));
+    if(nx===cur)return;
+    gyi=nx===cy?null:nx;
+    slide={what:"y",dir:n};
+    var y=window.scrollY;renderBouquet();window.scrollTo(0,y);
+    if(swiped)return;
+    var f=document.getElementById(n<0?"gpy":"gny");if(f&&!f.disabled)f.focus({preventScroll:true});else{f=document.getElementById(n<0?"gny":"gpy");if(f)f.focus({preventScroll:true})}
+  }
+  var py=document.getElementById("gpy"),ny=document.getElementById("gny"),ty=document.getElementById("gty");
+  if(py)py.onclick=function(){goYear(-1)};
+  if(ny)ny.onclick=function(){goYear(1)};
+  if(ty)ty.onclick=function(){gyi=null;var y=window.scrollY;renderBouquet();window.scrollTo(0,y);var f=document.getElementById("gpy");if(f)f.focus({preventScroll:true})};
+  onSwipe(document.getElementById("ySwipe"),function(){goYear(-1,true)},function(){goYear(1,true)});
   var pm=document.getElementById("gpm"),nm=document.getElementById("gnm");
   if(pm)pm.onclick=function(){goMonth(-1)};
   if(nm)nm.onclick=function(){goMonth(1)};
@@ -2729,7 +2767,7 @@ function renderBouquet(){
   var tl=el.querySelector(".tolist");
   if(tl)tl.onclick=function(e){e.preventDefault();var dp=document.getElementById("dayPanel");if(dp)dp.scrollIntoView({behavior:"smooth",block:"start"})};
   if(slide){
-    var tg=slide.what==="m"?document.querySelector("#mSwipe .bq"):document.getElementById("dayPanel");
+    var tg=slide.what==="m"?document.querySelector("#mSwipe .bq"):slide.what==="y"?document.querySelector("#ySwipe .bq"):document.getElementById("dayPanel");
     if(tg)tg.classList.add(slide.dir>0?"sl-n":"sl-p");
     slide=null;
   }
@@ -2827,6 +2865,11 @@ function renderDay(){
 function renderPlan(){
   var el=document.getElementById("v-plan");
   var h='<h2>Settings</h2>';
+  h+='<div class="card" id="searchCard"><h3>Search your entries</h3>'+
+    '<p class="small muted">Finds words in your half-hour notes and daily notes.</p>'+
+    '<label for="sq" class="sr">Search your entries</label>'+
+    '<input type="search" id="sq" class="srch" placeholder="Try \u201cessay\u201d or \u201cgym\u201d" autocomplete="off" value="'+esc(searchQ)+'">'+
+    '<p class="hand muted" id="sqc" aria-live="polite" style="margin:8px 0 0"></p><ul class="sres" id="sqr"></ul></div>';
   h+='<div class="card"><h3>Your tracking hours</h3>'+
     '<p class="small muted">The day is tracked in half-hour steps between these times. Changing them never changes the color of past days.</p>'+
     '<div class="form">'+
@@ -2842,6 +2885,25 @@ function renderPlan(){
     '<div class="btnrow"><button class="btn ghost" id="csv">Spreadsheet (.csv)</button></div>'+
     '<p class="hand muted" id="bm" style="margin-top:8px" aria-live="polite"></p></div>';
   el.innerHTML=h;
+  var sq=document.getElementById("sq"),sqT=null;
+  function runSearch(){
+    searchQ=sq.value;
+    var res=searchEntries(searchQ),c=document.getElementById("sqc"),ul=document.getElementById("sqr");
+    if(!searchQ.trim()){c.textContent="";ul.innerHTML="";return}
+    c.textContent=res.length?res.length+(res.length===1?" match":" matches")+(res.length>100?" — showing the newest 100":""):"No entries match \u201c"+searchQ.trim()+"\u201d. Try a shorter word.";
+    ul.innerHTML=res.slice(0,100).map(function(r){
+      return '<li><button data-ds="'+r.ds+'"><b>'+fmtDay(r.ds)+', '+r.ds.slice(0,4)+'<span class="sw2">'+(r.min!=null?fmtTime(r.min):"Daily notes")+'</span></b>'+
+        '<span>'+snippet(r.text,searchQ.trim())+'</span></button></li>';
+    }).join("");
+    ul.querySelectorAll("button").forEach(function(b){
+      b.onclick=function(){
+        dayDs=b.getAttribute("data-ds");gyi=null;setView("bouquet");
+        setTimeout(function(){var dp=document.getElementById("dayPanel");if(dp)dp.scrollIntoView({block:"start"})},30);
+      };
+    });
+  }
+  sq.oninput=function(){clearTimeout(sqT);sqT=setTimeout(runSearch,150)};
+  if(searchQ)runSearch();
   document.getElementById("sv").onclick=function(){
     var w=document.getElementById("sw").value,f=document.getElementById("sf").value,s=document.getElementById("ss").value;
     if(w)settings.wake=w;if(f)settings.end=f;if(s){settings.start=s;layoutCache={};floraMemo={};designMemo={};animalSeqKey=""}
@@ -2872,6 +2934,24 @@ function renderPlan(){
   };
 }
 
+function searchEntries(q){
+  q=q.trim().toLowerCase();if(!q)return [];
+  var out=[];
+  Object.keys(months).forEach(function(ym){Object.keys(months[ym]).forEach(function(d){
+    var r=months[ym][d],ds=ym+"-"+pad(+d);
+    if(r.note&&r.note.toLowerCase().indexOf(q)>-1)out.push({ds:ds,min:null,text:r.note});
+    Object.keys(r.s||{}).forEach(function(k){
+      var v=r.s[k];if(v&&String(v).toLowerCase().indexOf(q)>-1)out.push({ds:ds,min:+k.slice(1),text:String(v)});
+    });
+  })});
+  out.sort(function(a,b){return a.ds<b.ds?1:a.ds>b.ds?-1:(a.min==null?1e9:a.min)-(b.min==null?1e9:b.min)});
+  return out;
+}
+function snippet(text,q){
+  var low=text.toLowerCase(),i=low.indexOf(q.toLowerCase()),a=Math.max(0,i-50),b=Math.min(text.length,i+q.length+80);
+  var pre=(a>0?"\u2026":"")+esc(text.slice(a,i)),hit=esc(text.slice(i,i+q.length)),post=esc(text.slice(i+q.length,b))+(b<text.length?"\u2026":"");
+  return pre+"<mark>"+hit+"</mark>"+post;
+}
 function download(name,text,type){
   var blob=new Blob([text],{type:type+";charset=utf-8"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;
@@ -2979,7 +3059,7 @@ function setView(v){
 document.querySelectorAll("nav button").forEach(function(b){
   b.addEventListener("click",function(){
     var v=b.getAttribute("data-v");
-    if(v==="bouquet")dayDs=today();
+    if(v==="bouquet"){dayDs=today();gyi=null}
     setView(v);
   });
 });
