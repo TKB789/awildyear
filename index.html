@@ -371,7 +371,8 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 .dtags .jump{margin-top:0}
 /* half-hour tracker */
 .slots{list-style:none;margin:0;padding:0}   /* row height and top margin line up with the 18px dot grid */
-.slots li{display:grid;grid-template-columns:68px 28px minmax(0,1fr);gap:0 8px;align-items:center;height:36px;padding:0}
+.slots li{display:grid;grid-template-columns:68px 28px minmax(0,1fr);gap:0 8px;align-items:start;min-height:36px;padding:0}
+.slots .t{padding-top:9px}.slots .box{margin-top:6px}
 .slots li+li{border-top:1px dashed var(--line)}
 .slots li.hr{border-top:1.2px solid var(--line)}
 .slots li.hr .t{color:var(--ink);font-weight:650}
@@ -379,11 +380,13 @@ footer{margin-top:40px;text-align:center;font-family:var(--hand);color:var(--ink
 .slots .box{width:24px;height:24px;border-radius:50%;border-width:1.6px}
 .slots .box[aria-pressed="true"]::after{left:7px;top:3px;width:6px;height:11px}
 .slots .sn{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font-family:var(--disp);
-  font-size:.95rem;line-height:1.4;padding:3px 4px;border-radius:0;border-bottom:1px solid transparent}
+  font-size:.95rem;line-height:1.4;padding:3px 4px;border-radius:0;border-bottom:1px solid transparent;
+  display:block;min-height:0;height:auto;margin:4px 0 0;resize:none;overflow:hidden;overflow-wrap:anywhere;box-sizing:border-box}
 .slots .sn::placeholder{color:var(--ink2);opacity:.5}
 .slots .sn:focus{outline:none;border-bottom-color:var(--ink);background:var(--wash)}
 .slots li.on .sn{font-weight:600}
-@media (max-width:600px){.slots li{grid-template-columns:62px 26px minmax(0,1fr);gap:0 6px}.slots .box{width:22px;height:22px}}
+@media (max-width:600px){.slots li{grid-template-columns:62px 26px minmax(0,1fr);gap:0 6px}.slots .box{width:22px;height:22px;margin-top:7px}}
+#note{overflow:hidden;resize:none;box-sizing:border-box}
 /* search entries */
 .srch{display:block;width:100%;box-sizing:border-box;font-family:var(--disp);font-size:1rem;padding:9px 12px;margin-top:10px;
   border:1.5px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink)}
@@ -2788,7 +2791,19 @@ function setMeta(ds,obj){
 }
 
 /* the page has an 18px dot grid; shift the list so its row lines sit on it */
+/* notes grow to fit what's written; rows stay on the 18px grid */
+function fitSlot(ta){
+  ta.style.height="auto";var h=ta.scrollHeight+1;ta.style.height=h+"px";
+  var li=ta.parentNode;if(li)li.style.minHeight=Math.max(36,h+10)+"px";
+}
+function fitNote(ta){
+  ta.style.height="auto";
+  var min=parseFloat(getComputedStyle(ta).minHeight)||0;
+  ta.style.height=Math.max(min,ta.scrollHeight+2)+"px";
+}
 function alignSlots(){
+  document.querySelectorAll(".slots .sn").forEach(fitSlot);
+  var nt=document.getElementById("note");if(nt)fitNote(nt);
   var ul=document.querySelector(".slots");if(!ul)return;
   ul.style.paddingTop="0px";
   var top=ul.getBoundingClientRect().top+window.scrollY;
@@ -2817,8 +2832,8 @@ function renderDay(){
     var k=slotKey(m),on=c.indexOf(k)>-1;
     return '<li class="'+(on?"on":"")+(m%60===0?" hr":"")+'"><span class="t">'+fmtTime(m)+'</span>'+
       '<button class="box" data-slot="'+k+'" aria-pressed="'+on+'"'+(future?" disabled":"")+' aria-label="'+fmtTime(m)+' went well"></button>'+
-      '<input class="sn" data-note="'+k+'" value="'+esc(notes[k]||"")+'" maxlength="140" autocomplete="off" placeholder="\u2026"'+
-      (future?" disabled":"")+' aria-label="What you did at '+fmtTime(m)+'">'+'</li>';
+      '<textarea class="sn" rows="1" data-note="'+k+'" maxlength="140" autocomplete="off" placeholder="\u2026"'+
+      (future?" disabled":"")+' aria-label="What you did at '+fmtTime(m)+'">'+esc(notes[k]||"")+'</textarea></li>';
   }).join("")+'</ul>';
 
   var r0=rec(ds)||{};
@@ -2839,11 +2854,14 @@ function renderDay(){
   var dt=document.getElementById("dt");if(dt)dt.onclick=function(){dayDs=today();redraw("#dp")};
   document.getElementById("cmpBtn").onclick=function(){cmpDs=dayDs;setView("compare")};
   var nt=document.getElementById("note"),ntT=null;
-  if(nt)nt.oninput=function(){clearTimeout(ntT);var v=nt.value,d=dayDs;ntT=setTimeout(function(){setMeta(d,{note:v})},400)};
+  if(nt)nt.oninput=function(){fitNote(nt);clearTimeout(ntT);var v=nt.value,d=dayDs;ntT=setTimeout(function(){setMeta(d,{note:v})},400)};
 
   // notes save as you type, without redrawing, so the field keeps focus
   el.querySelectorAll(".sn").forEach(function(inp){
+    inp.onkeydown=function(e){if(e.key==="Enter"&&!e.isComposing){e.preventDefault();inp.blur()}};
     inp.oninput=function(){
+      if(/[\r\n]/.test(inp.value))inp.value=inp.value.replace(/[\r\n]+/g," ");
+      fitSlot(inp);
       var d=dayDs,k=inp.getAttribute("data-note");
       var obj=Object.assign({},(pending&&pending.ds===d?pending.s:slotNotes(d)));
       if(inp.value.trim())obj[k]=inp.value;else delete obj[k];
