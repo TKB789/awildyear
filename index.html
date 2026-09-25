@@ -1065,6 +1065,53 @@ function sortCells(polys){
   polys.sort(function(a,b){var ra=Math.floor(a.cy/band),rb=Math.floor(b.cy/band);return ra-rb||a.cx-b.cx});
   return polys;
 }
+/* From Oct 2026 on, number the facets as a walk through touching neighbours,
+   so day 5 sits next to day 4 and 6 wherever the shape allows. */
+var PATH_FROM="2026-10";
+function pathOrder(cells){
+  var n=cells.length;if(n<3)return cells;
+  function k(p){return p[0].toFixed(3)+","+p[1].toFixed(3)}
+  var em={},adj=cells.map(function(){return {}}),cx=[],cy=[];
+  cells.forEach(function(pg,i){
+    var sx=0,sy=0;pg.forEach(function(p){sx+=p[0];sy+=p[1]});cx[i]=sx/pg.length;cy[i]=sy/pg.length;
+    for(var e=0;e<pg.length;e++){var a=k(pg[e]),b=k(pg[(e+1)%pg.length]),ek=a<b?a+"|"+b:b+"|"+a;(em[ek]=em[ek]||[]).push(i)}
+  });
+  for(var ek in em){var L=em[ek];for(var x=0;x<L.length;x++)for(var y=0;y<L.length;y++)if(L[x]!==L[y])adj[L[x]][L[y]]=1}
+  // cells that touch at a corner only still count as close neighbours, just less preferred
+  var vm={};cells.forEach(function(pg,i){pg.forEach(function(p){var kk=k(p);(vm[kk]=vm[kk]||{})[i]=1})});
+  var near=cells.map(function(){return {}});
+  for(var vk in vm){var ids=Object.keys(vm[vk]).map(Number);ids.forEach(function(a){ids.forEach(function(b){if(a!==b&&!adj[a][b])near[a][b]=1})})}
+  function d(a,b){return Math.hypot(cx[a]-cx[b],cy[a]-cy[b])}
+  function walk(start){
+    var seen={},path=[start],cur=start,jumps=0,far=0,rot=0;seen[start]=1;
+    function free(i,set){var c=0;for(var j in set[i])if(!seen[j])c++;return c}
+    function best(set){var pick=-1,bs=Infinity;for(var j in set[cur]){j=+j;if(seen[j])continue;
+      var sc=free(j,adj)*1000+d(cur,j)*10+cx[j]*.01;if(sc<bs){bs=sc;pick=j}}return pick}
+    while(path.length<n){
+      var pick=best(adj);
+      if(pick<0&&rot<400){ // stuck: flip the tail of the walk so it ends somewhere with free neighbours (Posa rotation)
+        var did=false;
+        for(var q=path.length-3;q>=0;q--){
+          if(!adj[cur][path[q]]||!free(path[q+1],adj))continue;
+          path=path.slice(0,q+1).concat(path.slice(q+1).reverse());cur=path[path.length-1];rot++;did=true;break;
+        }
+        if(did)continue;
+      }
+      if(pick<0){pick=best(near);if(pick>=0)far+=d(cur,pick)*.3}
+      if(pick<0){ // still stuck: hop to the closest unused facet
+        var bd=Infinity;for(var j2=0;j2<n;j2++)if(!seen[j2]){var dd=d(cur,j2);if(dd<bd){bd=dd;pick=j2}}
+        jumps++;far+=bd;
+      }
+      seen[pick]=1;path.push(pick);cur=pick;
+    }
+    return {path:path,score:jumps*1000+far};
+  }
+  // try every starting facet (a month has at most 31) and keep the smoothest walk; ties go to the leftmost start
+  var best=null,order=cells.map(function(c,i){return i}).sort(function(a,b){return cx[a]-cx[b]||cy[a]-cy[b]});
+  order.forEach(function(s0){var w=walk(s0);if(!best||w.score<best.score-1e-9)best=w});
+  var out=best.path.map(function(i){return cells[i]});out.walkScore=best.score;
+  return out;
+}
 /* best label point: farthest from edges (and away from eyes) */
 function segDist(px,py,a,b){var dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy,t=L?((px-a[0])*dx+(py-a[1])*dy)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-a[0]-t*dx,py-a[1]-t*dy)}
 function labelSpot(pg,obst){
@@ -2265,12 +2312,24 @@ function designFor(ym){
   if(A.build){
     best=A.build(n,hashStr(animal+ym));bestR=Infinity;
     best.cells.forEach(function(pg){pg.lab=labelSpot(pg,obs);bestR=Math.min(bestR,pg.lab.r)});
-  }else for(var s=0;s<8;s++){
-    var seed=hashStr("mesh"+ym+":"+s),M=buildMesh(animal,n,seed),mn=Infinity;
-    M.cells.forEach(function(pg){pg.lab=labelSpot(pg,obs);mn=Math.min(mn,pg.lab.r)});
-    if(mn>bestR){bestR=mn;best=M}
+  }else{
+    var cands=[];
+    for(var s=0;s<8;s++){
+      var seed=hashStr("mesh"+ym+":"+s),M=buildMesh(animal,n,seed),mn=Infinity;
+      M.cells.forEach(function(pg){pg.lab=labelSpot(pg,obs);mn=Math.min(mn,pg.lab.r)});
+      cands.push({M:M,r:mn});
+      if(mn>bestR){bestR=mn;best=M}
+    }
+    // from Oct 2026: among meshes with nearly as much room for numbers, keep the one whose days link up best
+    if(ym>=PATH_FROM){
+      var bw=null;
+      cands.forEach(function(c){if(c.r<bestR*.85)return;var ord=pathOrder(c.M.cells);
+        var sc=ord.walkScore-c.r*2;if(!bw||sc<bw.sc){bw={sc:sc,M:c.M,ord:ord,r:c.r}}});
+      if(bw){best=bw.M;best.cells=bw.ord;bestR=bw.r}
+    }
   }
   best.animal=animal;best.name=A.name;best.minR=bestR;best.flip=yi%2===1;
+  if(ym>=PATH_FROM&&best.cells.walkScore===undefined)best.cells=pathOrder(best.cells);
   return (designMemo[ym]=best);
 }
 function animalName(ym){return designFor(ym).name}
